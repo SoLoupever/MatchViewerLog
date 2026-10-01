@@ -6,6 +6,8 @@
 ## IconTexture: Interface\AddOns\MatchViewerLog\Logo_MVL.blp
 ## SavedVariables: MatchViewerLogDB
 ## OptionalDeps: Rematch, BattlePetBreedID, Blizzard_Collections
+## X-Curse-Project-ID:1668460
+## X-Wago-ID:rNkgeeNa
 
 ## Category-enUS: Pet Battles
 ## Category-deDE: Haustierkämpfe

@@ -1,8 +1,8 @@
 package-as: MatchViewerLog
 
 move-folders:
-  MatchViewerLog/MatchScriptViewerLog: MatchScriptViewerLog
-  MatchViewerLog/MatchViewerLog_Converter: MatchViewerLog_Converter
+ MatchViewerLog/MatchScriptViewerLog: MatchScriptViewerLog
+ MatchViewerLog/MatchViewerLog_Converter: MatchViewerLog_Converter
 
 ignore:
   - .github
