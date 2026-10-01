@@ -1,0 +1,12 @@
+package-as: MatchViewerLog
+
+move-folders:
+  MatchViewerLog/MatchScriptViewerLog: MatchScriptViewerLog
+  MatchViewerLog/MatchViewerLog_Converter: MatchViewerLog_Converter
+
+ignore:
+  - .github
+  - .gitignore
+  - .gitattributes
+  - README
+  - README.md

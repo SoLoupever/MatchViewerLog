@@ -1,0 +1,32 @@
+## Interface: 120100
+## Title: MatchViewerLog_Converter |cff40c0a0Import|r
+## Notes: Convertisseur d'import pour MatchViewerLog : teams Rematch, codes Xufu et scripts tdBattlePetScript.
+## Author: SoLoup_ever
+## Version: 0.7
+## IconTexture: Interface\AddOns\MatchViewerLog\Logo_MVL.blp
+## Dependencies: MatchViewerLog
+## OptionalDeps: MatchScriptViewerLog, Rematch, tdBattlePetScript
+
+## Category-enUS: Pet Battles
+## Category-deDE: Haustierkämpfe
+## Category-esES: Duelos de mascotas
+## Category-esMX: Duelos de mascotas
+## Category-frFR: Combats de mascottes
+## Category-itIT: Mostra allenatori di mascotte
+## Category-koKR: 애완동물 대전
+## Category-ptBR: Batalhas de mascotes
+## Category-ruRU: Битвы питомцев
+## Category-zhCN: 宠物对战
+## Category-zhTW: 寵物對戰
+
+## -- LOCALISATION (un fichier par langue) --
+locales\Locales_frFR.lua
+locales\Locales_enUS.lua
+
+## -- NOYAU --
+core\Init.lua
+
+## -- SOURCES D'IMPORT --
+source\Import.lua
+source\ImportXufu.lua
+source\ImportTd.lua
