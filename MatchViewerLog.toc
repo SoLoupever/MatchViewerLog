@@ -47,6 +47,7 @@ fonctionnalite\TeamMigrations.lua
 fonctionnalite\Selection.lua
 fonctionnalite\TeamShare.lua
 fonctionnalite\Options.lua
+fonctionnalite\JournalFilters.lua
 
 ## -- INTERFACE --
 ui\Widgets.lua
