@@ -79,6 +79,14 @@ function Deploy.Team(teamID)
     -- au lieu de piocher une mascotte a monter, contrairement a l'intention
     -- du slot. On le traite comme un random "xp".
     local placed, used = {}, {}
+    if ns.MVL.ResolveSlots and useCurrent then
+        -- Meme resolution (memoisee) que le loadout MVL : fixes d'abord, pas de doublon.
+        placed = ns.MVL.ResolveSlots()
+        for slot = 1, 3 do
+            local petID = placed[slot]
+            if petID then pcall(C_PetJournal.SetPetLoadOutInfo, slot, petID) end
+        end
+    else
     for slot = 1, 3 do
         local petID = pets[slot]
         if random and random[slot] then
@@ -95,6 +103,7 @@ function Deploy.Team(teamID)
             placed[slot] = petID
             pcall(C_PetJournal.SetPetLoadOutInfo, slot, petID)
         end
+    end
     end
 
     -- 2a) Sorts explicites de l'equipe/editeur (ce qui est affiche au centre).

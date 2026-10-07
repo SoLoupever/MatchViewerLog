@@ -247,6 +247,7 @@ function Teams.Load(team)
     end
     NormalizeLeveling(c.random, c.special)
     c.name, c.category, c.sourceTeamID = team.name, team.category, team.id
+    Teams.ResetResolved()
     ns.Fire("TEAM_LOADED")
 end
 

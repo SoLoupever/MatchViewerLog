@@ -16,21 +16,67 @@ local Teams = ns.Teams
 -- (combat de mascottes ou combat monde). On re-applique a la sortie.
 local pendingSync = false
 
--- Ecrit reellement la compo concrete dans les emplacements de combat. Si l'etat
--- du jeu l'interdit (combat), on memorise pour re-essayer a la fin du combat :
--- sans ca, une compo modifiee pendant un combat n'etait jamais appliquee et
--- l'ancien loadout ressortait au combat suivant.
+local function IsPetID(v) return type(v) == "string" and v:find("^BattlePet") ~= nil end
+
+-- Pet effectif par slot : fixes d'abord (marques "used"), puis slots aleatoires
+-- (XP / type) resolus sans doublon. Resultat memoise pour l'equipe courante
+-- (signature pets/random/special) : l'edition d'un sort ne retire pas un
+-- aleatoire, et MSVL/MVL deploient le meme resultat. Reset au chargement
+-- d'equipe, au changement de teams/file et en fin de combat (niveaux changes).
+local resolved
+function Teams.ResetResolved() resolved = nil end
+
+function Teams.ResolveSlots(src)
+    local c = Teams.current
+    src = src or c
+    local random, special, pets = src.random or {}, src.special or {}, src.pets or {}
+    local sig
+    if src == c then
+        local p = {}
+        for i = 1, 3 do p[i] = tostring(pets[i]) .. "|" .. tostring(random[i]) .. "|" .. tostring(special[i]) end
+        sig = table.concat(p, ";")
+        if resolved and resolved.sig == sig then return resolved.out end
+    end
+    local out, used = {}, {}
+    for i = 1, 3 do
+        if not random[i] and special[i] ~= "leveling" and IsPetID(pets[i]) then
+            out[i] = pets[i]; used[pets[i]] = true
+        end
+    end
+    for i = 1, 3 do
+        if not out[i] then
+            local pid
+            if random[i] == ns.RANDOM_XP or special[i] == "leveling" then
+                pid = Teams.PickLevelingPet(used)
+            elseif random[i] then
+                pid = Teams.PickRandomOfType(random[i], used)
+            end
+            if pid then out[i] = pid; used[pid] = true end
+        end
+    end
+    if sig then resolved = { sig = sig, out = out } end
+    return out
+end
+
+ns.On("TEAMS_CHANGED", Teams.ResetResolved)
+ns.RegisterWowEvent("PET_BATTLE_CLOSE", Teams.ResetResolved)
+
+-- Ecrit reellement la compo dans les emplacements de combat (slots aleatoires
+-- inclus). Si l'etat du jeu l'interdit (combat), on memorise pour re-essayer a
+-- la fin du combat : sans ca, une compo modifiee pendant un combat n'etait
+-- jamais appliquee et l'ancien loadout ressortait au combat suivant.
 function Teams.ApplyLoadout()
     if C_PetBattles and C_PetBattles.IsInBattle and C_PetBattles.IsInBattle() then pendingSync = true; return end
     if InCombatLockdown() then pendingSync = true; return end
     if C_PetJournal.IsJournalUnlocked and not C_PetJournal.IsJournalUnlocked() then pendingSync = true; return end
     pendingSync = false
     local c = Teams.current
+    local slots = Teams.ResolveSlots()
     for slot = 1, 3 do
-        local petID = c.pets[slot]
-        if not (c.random and c.random[slot])
-           and type(petID) == "string" and petID:find("^BattlePet") then
-            pcall(C_PetJournal.SetPetLoadOutInfo, slot, petID)
+        local petID = slots[slot]
+        if petID then
+            local cur = C_PetJournal.GetPetLoadOutInfo(slot)
+            if cur ~= petID then pcall(C_PetJournal.SetPetLoadOutInfo, slot, petID) end
             local a = c.abil[slot]
             if type(a) == "table" then
                 for tier = 1, 3 do

@@ -74,6 +74,11 @@ local API = {
     PickRandomPetOfType = function(typeIndex, excluded)
         return ns.Teams and ns.Teams.PickRandomOfType(typeIndex, excluded)
     end,
+    -- Pet effectif par slot (fixes + aleatoires resolus, memoise). Source
+    -- unique du deploiement : loadout MVL et compagnon posent les memes pets.
+    ResolveSlots = function(src)
+        return ns.Teams and ns.Teams.ResolveSlots(src)
+    end,
     SelectTeam     = function(id)
         local t = ns.DB and ns.DB.teams and ns.DB.teams[id]
         if t and ns.Teams then ns.Teams.Load(t) end
