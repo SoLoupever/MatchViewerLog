@@ -25,8 +25,9 @@ StaticPopupDialogs["MATCHVIEWERLOG_DELTEAM"] = {
     timeout = 0, whileDead = true, hideOnEscape = true,
 }
 
-local PAD, ROW_H = 8, 22
-local accent = { 0.30, 0.55, 0.90 }
+local PAD, ROW_H = 8, 24
+local COL = ns.Style.COL
+local GRAY = { 0.65, 0.65, 0.70 }
 
 local built
 local scroll, rows = nil, {}
@@ -84,6 +85,17 @@ local function BuildItems()
 end
 
 local Update  -- fwd
+
+-- Etat visuel d'une ligne : survol, categorie/cible depliee (barre doree).
+local function Paint(row)
+    local key = (row._type == "cat" and row.catID) or (row._type == "target" and row.tgtKey) or nil
+    local open = key and expanded[key]
+    if row.hovered then row:SetBackdropColor(1, 1, 1, 0.07)
+    elseif open then row:SetBackdropColor(1, 0.82, 0, 0.07)
+    else row:SetBackdropColor(0, 0, 0, 0) end
+    if row.hovered and row._type == "cat" then row:SetBackdropBorderColor(1, 0.82, 0, 1)
+    else row:SetBackdropBorderColor(0, 0, 0, 0) end
+end
 
 -- Cache les visuels "mascotte" (row reutilisee entre types d'items).
 local function HidePetBits(row)
@@ -167,6 +179,8 @@ Update = function()
         local idx = offset + line
         if listShown and line <= maxRows and idx <= n then
             SetRow(row, items[idx])
+            row.zebra:SetShown(idx % 2 == 0)
+            Paint(row)
             row:Show()
         else
             row:Hide()
@@ -181,12 +195,17 @@ local function AcquireRow(parent, i)
     row:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
     row:SetBackdropColor(0, 0, 0, 0); row:SetBackdropBorderColor(0, 0, 0, 0)
 
+    -- Fond une ligne sur deux + barre doree (categorie/cible depliee).
+    row.zebra = row:CreateTexture(nil, "BACKGROUND")
+    row.zebra:SetAllPoints(); row.zebra:SetColorTexture(1, 1, 1, 0.025); row.zebra:Hide()
+
     row.arrow = row:CreateTexture(nil, "OVERLAY")
     row.arrow:SetSize(14, 14); row.arrow:SetPoint("LEFT", 6, 0)
     row.arrow:SetAtlas("housing-floor-arrow-up-default")
 
     row.count = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     row.count:SetPoint("RIGHT", -10, 0)
+    row.count:SetTextColor(GRAY[1], GRAY[2], GRAY[3])
 
     row.name = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     row.name:SetJustifyH("LEFT"); row.name:SetWordWrap(false)
@@ -212,12 +231,11 @@ local function AcquireRow(parent, i)
     row.scriptIcon:Hide()
 
     row:SetScript("OnEnter", function(self)
-        self:SetBackdropColor(accent[1] * 0.25, accent[2] * 0.25, accent[3] * 0.25, 0.35)
-        if self._type == "cat" then self:SetBackdropBorderColor(1, 0.82, 0, 1) end
+        self.hovered = true; Paint(self)
         if self._type == "pet" and self.petID and ns.PetCard then ns.PetCard.ShowFor(self, self.petID) end
     end)
     row:SetScript("OnLeave", function(self)
-        self:SetBackdropColor(0, 0, 0, 0); self:SetBackdropBorderColor(0, 0, 0, 0)
+        self.hovered = false; Paint(self)
         if self._type == "pet" and ns.PetCard then ns.PetCard.OnLeave() end
     end)
     -- Menu clic droit : deux choix (Modifier / Supprimer).
@@ -320,12 +338,10 @@ local function AcquireRow(parent, i)
 end
 
 local function BuildHeader(panel)
-    local teamsBtn = CreateFrame("Button", nil, panel, "BackdropTemplate")
-    teamsBtn:SetSize(56, 22); teamsBtn:SetPoint("TOPRIGHT", -PAD, -PAD)
-    teamsBtn:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-    teamsBtn:SetBackdropColor(0.12, 0.12, 0.16, 1); teamsBtn:SetBackdropBorderColor(accent[1], accent[2], accent[3], 1)
-    local tt = teamsBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    tt:SetPoint("CENTER"); tt:SetText(ns.L("RIGHT_TEAMS_BTN") .. " |cffffffff>|r")
+    local teamsBtn = ns.Style.Button(panel, ns.L("RIGHT_TEAMS_BTN") .. " >", 62, 24, {
+        bg = COL.navy, border = COL.blue, text = { 1, 1, 1 },
+    })
+    teamsBtn:SetPoint("TOPRIGHT", -PAD, -PAD)
     teamsBtn:SetScript("OnClick", function(self)
         if not (MenuUtil and MenuUtil.CreateContextMenu) then return end
         MenuUtil.CreateContextMenu(self, function(_, root)
@@ -351,7 +367,7 @@ local function BuildHeader(panel)
         searchText = text
         if built then Update() end
     end)
-    s:SetHeight(22)
+    s:SetHeight(24)
     s:SetPoint("TOPLEFT", PAD, -PAD)
     s:SetPoint("RIGHT", teamsBtn, "LEFT", -4, 0)
 end
@@ -365,8 +381,8 @@ local function Build()
     BuildHeader(panel)
 
     scroll = CreateFrame("ScrollFrame", "MatchViewerLogTeamsScroll", panel, "FauxScrollFrameTemplate")
-    scroll:SetPoint("TOPLEFT", PAD, -PAD - 30)
-    scroll:SetPoint("BOTTOMRIGHT", -PAD - 20, 34)
+    scroll:SetPoint("TOPLEFT", PAD, -PAD - 32)
+    scroll:SetPoint("BOTTOMRIGHT", -PAD - 10, 38)
     scroll:SetScript("OnVerticalScroll", function(self, o)
         FauxScrollFrame_OnVerticalScroll(self, o, ROW_H, Update)
     end)
@@ -395,9 +411,9 @@ local function Build()
     -- Modes de base + modes injectes par un compagnon (ns.rightPanelExtraModes).
     -- Un mode "custom" masque la liste et delegue son contenu a onShow/onHide.
     local baseModes = {
-        { key = "teams",  label = ns.L("RIGHT_MODE_TEAMS"),  col = { 0.45, 0.25, 0.75 } },
-        { key = "target", label = ns.L("RIGHT_MODE_TARGET"), col = { 0.80, 0.45, 0.15 } },
-        { key = "queue",  label = ns.L("RIGHT_MODE_QUEUE"),  col = { 0.80, 0.35, 0.55 } },
+        { key = "teams",  label = ns.L("RIGHT_MODE_TEAMS"),  col = { 0.55, 0.35, 0.90 } },
+        { key = "target", label = ns.L("RIGHT_MODE_TARGET"), col = { 0.85, 0.55, 0.20 } },
+        { key = "queue",  label = ns.L("RIGHT_MODE_QUEUE"),  col = { 0.88, 0.38, 0.58 } },
     }
     local modeBtns = {}
     local modeDefs = {}          -- key -> def (pour retrouver onShow/onHide)
@@ -408,7 +424,7 @@ local function Build()
     -- ns.OptionsPanel (pas de dependance dure : garde si le module manque).
     local optionsMode = {
         key = "options", label = ns.L("RIGHT_MODE_OPTIONS"),
-        col = { 0.30, 0.55, 0.90 }, custom = true,
+        col = { 0.25, 0.80, 0.55 }, custom = true,
         onShow = function(p) if ns.OptionsPanel then ns.OptionsPanel.OnShow(p) end end,
         onHide = function(p) if ns.OptionsPanel then ns.OptionsPanel.OnHide(p) end end,
     }
@@ -423,9 +439,7 @@ local function Build()
 
     local function SetMode(key)
         mode = key
-        for _, b in ipairs(modeBtns) do
-            b:SetBackdropBorderColor(b.key == key and 1 or 0.15, b.key == key and 0.82 or 0.15, b.key == key and 0 or 0.18, 1)
-        end
+        for _, b in ipairs(modeBtns) do b:SetActive(b.key == key) end
         local def = modeDefs[key]
         -- On quitte un mode custom : on le referme proprement.
         if activeCustom and activeCustom ~= def and activeCustom.onHide then
@@ -455,16 +469,17 @@ local function Build()
         wipe(modeBtns); wipe(modeDefs)
         for i, m in ipairs(AllModes()) do
             modeDefs[m.key] = m
-            local b = CreateFrame("Button", nil, panel, "BackdropTemplate")
-            b.key = m.key; b:SetHeight(24)
-            b:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
+            -- Couleur du mode : texte et contour teintes, fond sombre ; actif = rempli.
             local col = m.col or { 0.3, 0.3, 0.35 }
-            b:SetBackdropColor(col[1] * 0.6, col[2] * 0.6, col[3] * 0.6, 1)
-            b:SetBackdropBorderColor(0.15, 0.15, 0.18, 1)
-            if i == 1 then b:SetPoint("BOTTOMLEFT", PAD, 6)
+            local b = ns.Style.Button(panel, m.label, 40, 24, {
+                bg = ns.Style.Tint(col, 0.10), border = ns.Style.Tint(col, 0.55),
+                text = { math.min(1, col[1] + 0.2), math.min(1, col[2] + 0.2), math.min(1, col[3] + 0.2) },
+                hover = col,
+                activeBg = ns.Style.Tint(col, 0.35), activeBorder = col, activeText = { 1, 1, 1 },
+            })
+            b.key = m.key
+            if i == 1 then b:SetPoint("BOTTOMLEFT", PAD, 8)
             else b:SetPoint("BOTTOMLEFT", modeBtns[i - 1], "BOTTOMRIGHT", 4, 0) end
-            local t = b:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-            t:SetPoint("CENTER"); t:SetText(m.label)
             b:SetScript("OnClick", function() SetMode(m.key) end)
             modeBtns[i] = b
         end

@@ -1,8 +1,8 @@
 local addonName, ns = ...
 
 -- ====================================================
--- UTILITYBAR — petite rangee au-dessus du panneau droit : ranimer les
--- mascottes (sort 125439, avec animation de recharge), Pierre de combat
+-- UTILITYBAR — petite rangee au-dessus du panneau droit (frame.utilityAnchor) :
+-- ranimer les mascottes (sort 125439, avec animation de recharge), Pierre de combat
 -- sans defaut (98715), Pierre de dressage sans defaut (116429), Bandage
 -- de mascotte (86143), Chapeau de safari (jouet 92738, buff 158486 :
 -- clic = met / re-clic = enleve), Friandises pour familier (98114 / 98112).
@@ -142,9 +142,10 @@ local function MakeButton(parent, kind, id, macro)
         b:SetAttribute("item", "item:" .. id)
     end
 
+    local hl = b:CreateTexture(nil, "HIGHLIGHT"); hl:SetAllPoints(); hl:SetColorTexture(1, 1, 1, 0.12)
     b.icon = b:CreateTexture(nil, "ARTWORK")
-    b.icon:SetAllPoints(); b.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-    local hl = b:CreateTexture(nil, "HIGHLIGHT"); hl:SetAllPoints(); hl:SetColorTexture(1, 1, 1, 0.25)
+    b.icon:SetAllPoints()
+    b.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
     b.count = b:CreateFontString(nil, "OVERLAY", "NumberFontNormalSmall")
     b.count:SetPoint("BOTTOMRIGHT", 0, 1)
 
@@ -176,14 +177,13 @@ end
 
 local function DoBuild()
     if built then return end
-    local right = ns.Frame and ns.Frame.right
-    if not right then return end
+    local anchor = ns.Frame and ns.Frame.frame and ns.Frame.frame.utilityAnchor
+    if not anchor then return end
     built = true
 
     bar = CreateFrame("Frame", nil, ns.Frame.frame)
-    bar:SetPoint("BOTTOMLEFT", right, "TOPLEFT", 0, 2)
-    bar:SetPoint("BOTTOMRIGHT", right, "TOPRIGHT", 0, 2)
     bar:SetHeight(BTN)
+    bar:SetAllPoints(anchor)
 
     -- Groupe de gauche (ordre d'affichage) et groupe de droite (le dernier
     -- de la liste est colle au bord droit : le plus a droite de tous).

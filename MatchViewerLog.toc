@@ -50,6 +50,7 @@ fonctionnalite\Options.lua
 fonctionnalite\JournalFilters.lua
 
 ## -- INTERFACE --
+ui\Style.lua
 ui\Widgets.lua
 ui\ScrollSkin.lua
 ui\petinfo\PetTeamBadge.lua

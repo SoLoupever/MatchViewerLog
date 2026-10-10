@@ -9,7 +9,9 @@ local addonName, ns = ...
 
 ns.RegisterModule("LeftPanel", {})
 
-local ROW_H = 34
+local ROW_H = 34          -- pas de la liste (ligne + espace)
+local ROW_GAP = 0
+local COL = ns.Style.COL
 local rows, scroll, search = {}, nil, nil
 
 -- Liste ordonnee (indices), mise en cache. Recalculee seulement quand le roster,
@@ -140,7 +142,7 @@ local function UpdateList()
                 row.typeIcon:Hide()
             end
             local breed = isOwned and ns.Breed and ns.Breed.GetForPetID(petID)
-            row.breed:SetText(breed and ("|cff8fd3ff" .. breed .. "|r") or "")
+            row.breed:SetText(breed and ("|cff9a9aa6" .. breed .. "|r") or "")
             row.team:SetPetID(isOwned and petID or nil)
             row.petID = petID
             row.species = speciesID
@@ -184,30 +186,35 @@ local function Build()
         ns.petSearchText = text   -- memorise pour restaurer apres un scan complet
         C_PetJournal.SetSearchFilter(text)
     end)
-    search:SetHeight(22)
-    search:SetPoint("TOPLEFT", 8, -6)
-    search:SetPoint("TOPRIGHT", -8, -6)
+    search:SetHeight(24)
+    search:SetPoint("TOPLEFT", 8, -8)
+    search:SetPoint("TOPRIGHT", -8, -8)
+
+    -- Trait de separation entre les filtres (TypeBar) et la liste.
+    local sep = left:CreateTexture(nil, "ARTWORK")
+    sep:SetColorTexture(0.21, 0.18, 0.10, 1)
+    sep:SetPoint("TOPLEFT", 8, -88); sep:SetPoint("TOPRIGHT", -8, -88); sep:SetHeight(1)
 
     scroll = CreateFrame("ScrollFrame", "MatchViewerLogRosterScroll", left, "FauxScrollFrameTemplate")
-    scroll:SetPoint("TOPLEFT", 6, -88)
-    scroll:SetPoint("BOTTOMRIGHT", -26, 6)
+    scroll:SetPoint("TOPLEFT", 8, -96)
+    scroll:SetPoint("BOTTOMRIGHT", -18, 6)
     scroll:SetScript("OnVerticalScroll", function(self, o)
         FauxScrollFrame_OnVerticalScroll(self, o, ROW_H, UpdateList)
     end)
     ns.ScrollSkin.Apply(scroll)
 
-    local visible = math.floor(430 / ROW_H) + 1
+    local visible = math.floor(500 / ROW_H) + 1
     for i = 1, visible do
         local row = CreateFrame("Button", nil, left, "BackdropTemplate")
-        row:SetHeight(ROW_H)
-        row:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
+        row:SetHeight(ROW_H - ROW_GAP)
+        row:SetBackdrop({ edgeFile = ns.Style.WHITE, edgeSize = 1 })
         row:SetBackdropBorderColor(0, 0, 0, 0)
         if i == 1 then
             row:SetPoint("TOPLEFT", scroll, "TOPLEFT", 0, 0)
             row:SetPoint("TOPRIGHT", scroll, "TOPRIGHT", 0, 0)
         else
-            row:SetPoint("TOPLEFT", rows[i - 1], "BOTTOMLEFT", 0, 0)
-            row:SetPoint("TOPRIGHT", rows[i - 1], "BOTTOMRIGHT", 0, 0)
+            row:SetPoint("TOPLEFT", rows[i - 1], "BOTTOMLEFT", 0, -ROW_GAP)
+            row:SetPoint("TOPRIGHT", rows[i - 1], "BOTTOMRIGHT", 0, -ROW_GAP)
         end
 
         local hl = row:CreateTexture(nil, "HIGHLIGHT"); hl:SetAllPoints()
@@ -264,12 +271,12 @@ local function Build()
         row.fav:Hide()
 
         -- Niveau : a droite du type (element le plus a droite de la ligne).
-        row.level = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-        row.level:SetWidth(22); row.level:SetJustifyH("CENTER")
+        row.level = row:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
+        row.level:SetWidth(20); row.level:SetJustifyH("CENTER")
         row.level:SetPoint("RIGHT", -4, 0)
 
         row.typeIcon = row:CreateTexture(nil, "OVERLAY")
-        row.typeIcon:SetSize(20, 20)
+        row.typeIcon:SetSize(16, 16)
         row.typeIcon:SetPoint("RIGHT", row.level, "LEFT", -2, 0)
         -- Icone nette : sous-region de l'atlas PetIcon-* (memes TexCoords
         -- que la carte de mascotte Blizzard). Sans ca, tout l'atlas s'affiche.
@@ -277,7 +284,7 @@ local function Build()
 
         -- Largeur fixe : la pastille "team" reste alignee d'une ligne a l'autre.
         row.breed = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-        row.breed:SetWidth(26); row.breed:SetJustifyH("RIGHT")
+        row.breed:SetWidth(24); row.breed:SetJustifyH("RIGHT")
         row.breed:SetPoint("RIGHT", row.typeIcon, "LEFT", -4, 0)
 
         -- Pastille "deja dans une team" ; relaie le survol a la ligne (PetCard).
@@ -286,7 +293,7 @@ local function Build()
             function() local f = row:GetScript("OnLeave"); if f then f(row) end end)
         row.team:SetPoint("RIGHT", row.breed, "LEFT", -3, 0)
 
-        row.name = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        row.name = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         row.name:SetPoint("LEFT", row.icon, "RIGHT", 6, 0)
         -- Borne a gauche de la pastille team : les noms longs sont tronques
         -- ("...") au lieu de deborder par-dessus.

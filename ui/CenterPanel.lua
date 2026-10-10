@@ -12,8 +12,10 @@ ns.RegisterModule("CenterPanel", {})
 
 local built
 local tbox, teamFS, slots = nil, nil, {}
-local TOP_USED = 8 + 64 + 6 + 26 + 6
-local ABIL_SIZE = 36
+local TOP_USED = 8 + 56 + 6 + 26 + 6
+local ABIL_SIZE = 32
+local COL = ns.Style.COL
+local BREED_HEX = "|cff9a9aa6"
 local NOTES_ICON = "Interface\\Icons\\INV_Icon_Daily_Mission_Scroll"
 
 -- Couleur de la barre de vie : degrade vert (plein) -> jaune (moitie) -> rouge.
@@ -53,8 +55,7 @@ local function EnsureFlyout()
     if flyout then return flyout end
     flyout = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
     flyout:SetFrameStrata("TOOLTIP")
-    flyout:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-    flyout:SetBackdropColor(0.05, 0.05, 0.07, 0.98); flyout:SetBackdropBorderColor(0.5, 0.42, 0.12, 1)
+    ns.Style.Paint(flyout, { 0.04, 0.04, 0.05, 0.98 }, COL.border)
     flyout.btns = {}
     for c = 1, 2 do
         local b = CreateFrame("Button", nil, flyout)
@@ -111,6 +112,7 @@ local tgt = { npcID = nil, list = EMPTY, idx = 1 }
 -- Affiche l'equipe courante de la liste + fleches si plusieurs equipes.
 local function ShowTargetTeam()
     local team, n = tgt.list[tgt.idx], #tgt.list
+    tbox.name:SetJustifyH(tgt.has and "LEFT" or "CENTER")
     if team then
         tbox.teamFS:SetText("|cff40e0d0" .. (team.name or "") .. "|r")
         tbox.loadBtn.team = team; tbox.loadBtn:Show()
@@ -121,6 +123,12 @@ local function ShowTargetTeam()
     tbox.prev:SetShown(multi); tbox.next:SetShown(multi); tbox.counter:SetShown(multi)
     if multi then tbox.counter:SetText(tgt.idx .. "/" .. n) end
     tbox.name:ClearAllPoints()
+    if not tgt.has then
+        -- Aucune cible : titre centre dans la boite.
+        tbox.name:SetPoint("LEFT", tbox, "LEFT", 8, 0)
+        tbox.name:SetPoint("RIGHT", tbox, "RIGHT", -8, 0)
+        return
+    end
     tbox.name:SetPoint("TOPLEFT", tbox, "TOPLEFT", NAME_X, -6)
     if multi then tbox.name:SetPoint("RIGHT", tbox.prev, "LEFT", -4, 0)
     else tbox.name:SetPoint("RIGHT", tbox, "RIGHT", -8, 0) end
@@ -137,12 +145,16 @@ local function UpdateTarget()
     if not tbox then return end
     local npcID
     if UnitExists("target") and not UnitIsPlayer("target") then
+        tgt.has = true
         SetPortraitTexture(tbox.portrait, "target"); tbox.portrait:Show()
+        tbox.name:SetFontObject("GameFontNormalLarge")
         tbox.name:SetText(UnitName("target")); tbox.name:SetTextColor(1, 0.82, 0)
         npcID = ns.Teams and ns.Teams.CurrentTargetNpcID()
     else
+        tgt.has = false
         tbox.portrait:Hide()
-        tbox.name:SetText(ns.L("CENTER_NO_TARGET")); tbox.name:SetTextColor(0.55, 0.55, 0.58)
+        tbox.name:SetFontObject(ns.Style.TITLE_FONT)
+        tbox.name:SetText(string.upper(ns.L("CENTER_NO_TARGET"))); tbox.name:SetTextColor(0.55, 0.45, 0.22)
     end
     local list = npcID and ns.Teams.FindAllByTarget(npcID) or EMPTY
     -- Meme PNJ : on garde l'equipe affichee ; sinon on se cale sur l'equipe chargee.
@@ -183,7 +195,7 @@ local function ShowRandom(slot, i, t)
         if info then
             slot.icon:SetTexture(info.icon); slot.icon:Show()
             slot.level:SetText(info.level and ("|cffffd200" .. info.level .. "|r") or "")
-            slot.breed:SetText(info.breed and ("|cff8fd3ff" .. info.breed .. "|r") or "")
+            slot.breed:SetText(info.breed and (BREED_HEX .. info.breed .. "|r") or "")
             local q = info.rarity and ITEM_QUALITY_COLORS[info.rarity - 1]
             slot.name:SetText(ns.L("SLOT_RANDOM_XP"))
             if q then slot.name:SetTextColor(q.r, q.g, q.b) else slot.name:SetTextColor(0.55, 0.85, 0.55) end
@@ -213,7 +225,7 @@ local function ShowRandom(slot, i, t)
     if info then
         slot.icon:SetTexture(info.icon); slot.icon:Show()
         slot.level:SetText(info.level and ("|cffffd200" .. info.level .. "|r") or "")
-        slot.breed:SetText(info.breed and ("|cff8fd3ff" .. info.breed .. "|r") or "")
+        slot.breed:SetText(info.breed and (BREED_HEX .. info.breed .. "|r") or "")
         local q = info.rarity and ITEM_QUALITY_COLORS[info.rarity - 1]
         slot.name:SetText(ns.L("SLOT_RANDOM"))
         if q then slot.name:SetTextColor(q.r, q.g, q.b) else slot.name:SetTextColor(0.7, 0.85, 1) end
@@ -249,7 +261,7 @@ local function ShowUnowned(slot, u)
     slot.lock:Show()
     slot.level:SetText("")
     slot.name:SetText(name or "?"); slot.name:SetTextColor(0.7, 0.7, 0.7)
-    slot.breed:SetText((u.breed and u.breed ~= "0") and ("|cff8fd3ff" .. u.breed .. "|r") or "")
+    slot.breed:SetText((u.breed and u.breed ~= "0") and (BREED_HEX .. u.breed .. "|r") or "")
     if petType and GetPetTypeTexture then
         slot.typeIcon:SetTexture(GetPetTypeTexture(petType))
         slot.typeIcon:SetTexCoord(0.796875, 0.4921875, 0.50390625, 0.65625)
@@ -305,7 +317,7 @@ local function RefreshSlot(i)
         slot.name:SetText(info.name or "")
         local q = info.rarity and ITEM_QUALITY_COLORS[info.rarity - 1]
         if q then slot.name:SetTextColor(q.r, q.g, q.b) else slot.name:SetTextColor(1, 1, 1) end
-        slot.breed:SetText(info.breed and ("|cff8fd3ff" .. info.breed .. "|r") or "")
+        slot.breed:SetText(info.breed and (BREED_HEX .. info.breed .. "|r") or "")
         if info.petType and GetPetTypeTexture then
             slot.typeIcon:SetTexture(GetPetTypeTexture(info.petType))
             slot.typeIcon:SetTexCoord(0.796875, 0.4921875, 0.50390625, 0.65625)
@@ -392,6 +404,8 @@ local function Relayout()
         s:SetPoint("TOPLEFT", center, "TOPLEFT", 8, -y)
         s:SetPoint("TOPRIGHT", center, "TOPRIGHT", -8, -y)
         s:SetHeight(slotH)
+        -- Barre de vie : tout l'espace entre l'icone et les 3 sorts.
+        s.hpBar:SetWidth(math.max(40, center:GetWidth() - 16 - 16 - 8 - (3 * ABIL_SIZE + 8)))
     end
 end
 
@@ -401,9 +415,7 @@ local function OnSlotReceive(i)
 end
 
 local function MakeBox(parent, h)
-    local b = CreateFrame("Frame", nil, parent, "BackdropTemplate")
-    b:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-    b:SetBackdropColor(0.09, 0.09, 0.11, 1); b:SetBackdropBorderColor(0.28, 0.28, 0.33, 1)
+    local b = ns.Style.Box(parent, { 0.04, 0.04, 0.05, 1 }, COL.edge)
     if h then b:SetHeight(h) end
     return b
 end
@@ -432,7 +444,7 @@ local function BuildSlot(center, i)
 
     -- Icone = bouton (infobulle mascotte + depot).
     local iconBtn = CreateFrame("Button", nil, slot)
-    iconBtn:SetSize(40, 40); iconBtn:SetPoint("TOPLEFT", 8, -8)
+    iconBtn:SetSize(36, 36); iconBtn:SetPoint("TOPLEFT", 8, -8)
     iconBtn:RegisterForClicks("LeftButtonUp", "RightButtonUp")
     iconBtn:SetScript("OnEnter", function(self) ShowPetTip(self, ns.Teams.current.pets[i]) end)
     iconBtn:SetScript("OnLeave", HidePetTip)
@@ -451,20 +463,20 @@ local function BuildSlot(center, i)
     slot.name:SetJustifyH("LEFT"); slot.name:SetWordWrap(false)
 
     -- Niveau a droite du type (element le plus a droite de l'en-tete du slot).
-    slot.level = slot:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    slot.level = slot:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
     slot.level:SetWidth(22); slot.level:SetJustifyH("CENTER")
-    slot.level:SetPoint("TOPRIGHT", -6, -12)
+    slot.level:SetPoint("TOPRIGHT", -6, -10)
 
     slot.typeIcon = slot:CreateTexture(nil, "OVERLAY")
-    slot.typeIcon:SetSize(20, 20)
-    slot.typeIcon:SetPoint("RIGHT", slot.level, "LEFT", -2, 0)
+    slot.typeIcon:SetSize(18, 18)
+    slot.typeIcon:SetPoint("RIGHT", slot.level, "LEFT", -3, 0)
     slot.name:SetPoint("RIGHT", slot.typeIcon, "LEFT", -4, 0)
 
     slot.breed = slot:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    slot.breed:SetPoint("TOPLEFT", iconBtn, "BOTTOMLEFT", 2, -4)
+    slot.breed:SetPoint("TOPLEFT", slot.name, "BOTTOMLEFT", 0, -4)
 
     slot.hpBar = CreateFrame("StatusBar", nil, slot, "BackdropTemplate")
-    slot.hpBar:SetSize(64, 14); slot.hpBar:SetPoint("TOPLEFT", slot.breed, "BOTTOMLEFT", 0, -4)
+    slot.hpBar:SetSize(96, 14); slot.hpBar:SetPoint("TOPLEFT", iconBtn, "BOTTOMLEFT", 0, -8)
     slot.hpBar:SetStatusBarTexture("Interface\\RaidFrame\\Raid-Bar-Hp-Fill")
     slot.hpBar:SetStatusBarColor(0.20, 0.75, 0.25); slot.hpBar:SetMinMaxValues(0, 1); slot.hpBar:SetValue(1)
     -- Cadre fin + fond assombri (aspect plus net que la barre nue).
@@ -488,7 +500,7 @@ local function BuildSlot(center, i)
     for a = 1, 3 do
         local ab = CreateFrame("Button", nil, slot)
         ab:SetSize(ABIL_SIZE, ABIL_SIZE)
-        if a == 1 then ab:SetPoint("LEFT", slot.hpBar, "RIGHT", 10, 0)
+        if a == 1 then ab:SetPoint("LEFT", slot.hpBar, "RIGHT", 8, 0)
         else ab:SetPoint("LEFT", slot.abilities[a - 1], "RIGHT", 4, 0) end
         ab.tex = ab:CreateTexture(nil, "ARTWORK"); ab.tex:SetAllPoints(); ab.tex:SetTexCoord(0.08, 0.92, 0.08, 0.92)
         local hl = ab:CreateTexture(nil, "HIGHLIGHT"); hl:SetAllPoints(); hl:SetColorTexture(1, 1, 1, 0.3)
@@ -525,14 +537,15 @@ local function Build()
     if not center then return end
     built = true
 
-    local box = MakeBox(center, 64)
+    local box = MakeBox(center, 56)
+    box:SetBackdropColor(unpack(COL.bg)); box:SetBackdropBorderColor(unpack(COL.border))
     box:SetPoint("TOPLEFT", 8, -8); box:SetPoint("TOPRIGHT", -8, -8)
     tbox = box
     box.portrait = box:CreateTexture(nil, "ARTWORK")
-    box.portrait:SetSize(44, 44); box.portrait:SetPoint("LEFT", 8, 0); box.portrait:Hide()
-    box.name = box:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-    box.name:SetJustifyH("LEFT")
-    box.name:SetText(ns.L("CENTER_NO_TARGET")); box.name:SetTextColor(0.55, 0.55, 0.58)
+    box.portrait:SetSize(40, 40); box.portrait:SetPoint("LEFT", 8, 0); box.portrait:Hide()
+    box.name = box:CreateFontString(nil, "OVERLAY", ns.Style.TITLE_FONT)
+    box.name:SetJustifyH("CENTER")
+    box.name:SetText(string.upper(ns.L("CENTER_NO_TARGET"))); box.name:SetTextColor(0.55, 0.45, 0.22)
     box.teamFS = box:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     box.teamFS:SetPoint("TOPLEFT", box.name, "BOTTOMLEFT", 0, -4)
 
@@ -558,9 +571,11 @@ local function Build()
     box.counter:SetPoint("RIGHT", box.next, "LEFT", 0, 0); box.counter:Hide()
     box.prev = MakeArrow("Prev", "CENTER_PREV_TEAM", -1)
     box.prev:SetPoint("RIGHT", box.counter, "LEFT", 0, 0)
-    box.loadBtn = CreateFrame("Button", nil, box, "UIPanelButtonTemplate")
-    box.loadBtn:SetSize(72, 20); box.loadBtn:SetPoint("BOTTOMRIGHT", -6, 6)
-    box.loadBtn:SetText(ns.L("CENTER_DEPLOY")); box.loadBtn:Hide()
+    box.loadBtn = ns.Style.Button(box, ns.L("CENTER_DEPLOY"), 64, 18, {
+        bg = COL.card, border = COL.border, text = COL.gold,
+    })
+    box.loadBtn:SetPoint("BOTTOMRIGHT", -6, 5)
+    box.loadBtn:Hide()
     box.loadBtn:SetScript("OnClick", function(self)
         if self.team and ns.Teams then ns.Teams.Load(self.team) end
     end)

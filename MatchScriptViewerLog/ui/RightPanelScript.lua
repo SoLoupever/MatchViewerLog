@@ -115,7 +115,7 @@ end
 ns.MVL.RegisterRightPanelMode({
     key    = "script",
     label  = ns.L("MODE_SCRIPT"),
-    col    = { 0.55, 0.35, 0.85 },
+    col    = { 0.30, 0.55, 0.90 },
     custom = true,
     onShow = function(panel)
         BuildContainer(panel)

@@ -30,6 +30,7 @@ ns._locales.enUS = {
     UNIQUE_PETS        = "Unique",
     ACHIEV_TITLE       = "Battle Pet Achievements",
     ACHIEV_HINT        = "Click to open the Battle Pet achievements.",
+    ACHIEV_SHORT       = "Achievements",
     SLOT_EMPTY         = "Empty",
     BTN_SUMMON         = "Summon",
     BTN_FIND_BATTLE    = "Find Battle",

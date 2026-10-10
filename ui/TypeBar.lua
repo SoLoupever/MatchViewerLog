@@ -11,7 +11,9 @@ ns.RegisterModule("TypeBar", {})
 
 local bar, typeBtns, tabBtns, levelBtns, dupeBtn = nil, {}, {}, {}, nil
 local state = { mode = "type", type = nil }
-local accent = { 0.30, 0.55, 0.90 }
+local COL = ns.Style.COL
+local TAB_H = 20
+local ROW2_Y = -28     -- rangee des filtres ronds, sous les onglets
 
 -- Filtre de niveau partage avec LeftPanel : nil | "max" (25) | "notmax".
 ns.LevelFilter = ns.LevelFilter or nil
@@ -47,33 +49,27 @@ local function ApplyFilter()
 end
 
 local function UpdateVisuals()
-    for mode, b in pairs(tabBtns) do
-        local on = (mode == state.mode)
-        b.bg:SetColorTexture(on and accent[1] or 0.12, on and accent[2] or 0.12, on and accent[3] or 0.14, on and 0.55 or 0.9)
-        b.text:SetTextColor(on and 1 or 0.7, on and 1 or 0.7, on and 1 or 0.72)
-    end
+    for mode, b in pairs(tabBtns) do b:SetActive(mode == state.mode) end
     for i, b in ipairs(typeBtns) do
-        local on = (state.type == i)
-        -- Contour jaune si selectionne, invisible sinon (l'icone reste visible).
-        b:SetBackdropBorderColor(on and 1 or 0, on and 0.82 or 0, 0, on and 1 or 0)
+        -- Anneau dore autour du rond si selectionne.
+        b.ring:SetShown(state.type == i)
     end
     for _, b in pairs(levelBtns) do
-        local on = (ns.LevelFilter == b.kind)
-        b:SetBackdropBorderColor(on and 1 or 0, on and 0.82 or 0, 0, on and 1 or 0)
+        local c = (ns.LevelFilter == b.kind) and COL.gold or COL.edge
+        b:SetBackdropBorderColor(c[1], c[2], c[3], 1)
     end
     if dupeBtn then
-        local on = ns.DupeFilter and true or false
-        dupeBtn:SetBackdropBorderColor(on and 1 or 0, on and 0.82 or 0, 0, on and 1 or 0)
+        local c = ns.DupeFilter and COL.gold or COL.edge
+        dupeBtn:SetBackdropBorderColor(c[1], c[2], c[3], 1)
     end
 end
 
 local function MakeTab(mode, label, x, w)
-    local b = CreateFrame("Button", nil, bar)
-    b:SetSize(w, 18)
+    local b = ns.Style.Button(bar, label, w, TAB_H, {
+        bg = COL.card, border = COL.border, text = { 0.78, 0.88, 0.35 },
+        activeBg = COL.navy, activeBorder = COL.blue, activeText = { 1, 1, 1 },
+    })
     b:SetPoint("TOPLEFT", x, 0)
-    b.bg = b:CreateTexture(nil, "BACKGROUND"); b.bg:SetAllPoints()
-    b.text = b:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    b.text:SetPoint("CENTER"); b.text:SetText(label)
     b:SetScript("OnClick", function()
         state.mode = mode; UpdateVisuals()
         if state.type then ApplyFilter() end
@@ -82,20 +78,19 @@ local function MakeTab(mode, label, x, w)
 end
 
 local function MakeType(petType, x, size)
-    local b = CreateFrame("Button", nil, bar, "BackdropTemplate")
+    local b = CreateFrame("Button", nil, bar)
     b:SetSize(size, size)
-    b:SetPoint("TOPLEFT", x, -22)
-    -- Plaque sombre + contour (jaune quand selectionne, via UpdateVisuals).
-    b:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-    b:SetBackdropColor(0, 0, 0, 0.45)
-    b:SetBackdropBorderColor(0, 0, 0, 0)
+    b:SetPoint("TOPLEFT", x, ROW2_Y)
+    -- Anneau dore (montre par UpdateVisuals quand le type est selectionne).
+    b.ring = b:CreateTexture(nil, "BACKGROUND")
+    b.ring:SetAllPoints(); b.ring:SetColorTexture(1, 0.82, 0, 1); b.ring:Hide()
     local icon = b:CreateTexture(nil, "ARTWORK")
     icon:SetPoint("TOPLEFT", 1, -1); icon:SetPoint("BOTTOMRIGHT", -1, 1)
     icon:SetTexture(TypeIcon(petType))
     -- L'icone nette est une sous-region de l'atlas PetIcon-* (memes
     -- TexCoords que la carte de mascotte Blizzard, quel que soit le type).
     icon:SetTexCoord(0.796875, 0.4921875, 0.50390625, 0.65625)
-    local hl = b:CreateTexture(nil, "HIGHLIGHT"); hl:SetAllPoints(); hl:SetColorTexture(1, 1, 1, 0.25)
+    local hl = b:CreateTexture(nil, "HIGHLIGHT"); hl:SetAllPoints(); hl:SetColorTexture(1, 1, 1, 0.18)
     b:SetScript("OnClick", function()
         -- Toggle explicite : "cond and nil or x" ne peut jamais renvoyer nil.
         if state.type == petType then state.type = nil else state.type = petType end
@@ -113,10 +108,8 @@ end
 local function MakeLevel(kind, label, tip, x, size)
     local b = CreateFrame("Button", nil, bar, "BackdropTemplate")
     b:SetSize(size, size)
-    b:SetPoint("TOPLEFT", x, -22)
-    b:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-    b:SetBackdropColor(0, 0, 0, 0.45)
-    b:SetBackdropBorderColor(0, 0, 0, 0)
+    b:SetPoint("TOPLEFT", x, ROW2_Y)
+    ns.Style.Paint(b, COL.card, COL.edge)
     b.kind = kind
     local t = b:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     t:SetPoint("CENTER"); t:SetText(label); t:SetTextColor(1, 0.82, 0)
@@ -137,10 +130,8 @@ end
 local function MakeDupe(x, size)
     local b = CreateFrame("Button", nil, bar, "BackdropTemplate")
     b:SetSize(size, size)
-    b:SetPoint("TOPLEFT", x, -22)
-    b:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-    b:SetBackdropColor(0, 0, 0, 0.45)
-    b:SetBackdropBorderColor(0, 0, 0, 0)
+    b:SetPoint("TOPLEFT", x, ROW2_Y)
+    ns.Style.Paint(b, COL.card, COL.edge)
     local icon = b:CreateTexture(nil, "ARTWORK")
     icon:SetPoint("TOPLEFT", 1, -1); icon:SetPoint("BOTTOMRIGHT", -1, 1)
     icon:SetTexture(132599)
@@ -163,12 +154,12 @@ local function Build()
     if not left then return end
 
     bar = CreateFrame("Frame", nil, left)
-    bar:SetPoint("TOPLEFT", 6, -34)
-    bar:SetPoint("TOPRIGHT", -6, -34)
-    bar:SetHeight(48)
+    bar:SetPoint("TOPLEFT", 6, -40)
+    bar:SetPoint("TOPRIGHT", -6, -40)
+    bar:SetHeight(46)
 
     local W = math.floor(left:GetWidth()) - 12
-    if W < 180 then W = 266 end
+    if W < 180 then W = 272 end
     local gearW, gap = 18, 3
     local tabW = math.floor((W - gearW - 4 - 4) / 3)
     MakeTab("type",   ns.L("TAB_TYPE"),   0,              tabW)
@@ -176,7 +167,7 @@ local function Build()
     MakeTab("tough",  ns.L("TAB_TOUGH"),  (tabW + 2) * 2, tabW)
 
     local gear = CreateFrame("Button", nil, bar)
-    gear:SetSize(gearW, gearW); gear:SetPoint("TOPRIGHT", 0, 0)
+    gear:SetSize(gearW, gearW); gear:SetPoint("TOPRIGHT", 0, -1)
     local g = gear:CreateTexture(nil, "ARTWORK"); g:SetAllPoints()
     g:SetTexture("Interface\\Buttons\\UI-OptionsButton")
     gear:SetScript("OnClick", function()

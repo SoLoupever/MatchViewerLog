@@ -35,6 +35,15 @@ local function ShowTip(self)
     GameTooltip:Show()
 end
 
+-- Relaie un script de la pastille a son parent (la ligne ou la carte).
+local function Forward(script)
+    return function(self, ...)
+        local p = self:GetParent()
+        local f = p and p:GetScript(script)
+        if f then f(p, ...) end
+    end
+end
+
 -- tipAnchor : ancrage GameTooltip. onEnter/onLeave : relais optionnels
 -- (ex. garder la PetCard ouverte quand la souris passe sur la pastille).
 function Badge.Create(parent, size, tipAnchor, onEnter, onLeave)
@@ -44,7 +53,11 @@ function Badge.Create(parent, size, tipAnchor, onEnter, onLeave)
     b.tex = b:CreateTexture(nil, "ARTWORK")
     b.tex:SetAllPoints()
     b.tex:SetTexture(ICON)
-    if b.SetPropagateMouseClicks then b:SetPropagateMouseClicks(true) end
+    -- SetPropagateMouseClicks est protegee en combat : on relaie a la main.
+    b:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+    b:RegisterForDrag("LeftButton")
+    b:SetScript("OnClick", Forward("OnClick"))
+    b:SetScript("OnDragStart", Forward("OnDragStart"))
     b:SetScript("OnEnter", function(self)
         if onEnter then onEnter() end
         ShowTip(self)

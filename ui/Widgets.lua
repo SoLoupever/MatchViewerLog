@@ -8,14 +8,13 @@ local addonName, ns = ...
 local Widgets = ns.RegisterModule("Widgets", {})
 ns.Widgets = Widgets
 
--- Barre de recherche a bordure carree violette (loupe + texte d'invite).
+-- Barre de recherche a bordure carree doree (loupe + texte d'invite).
 -- onChanged(text) est appele a chaque frappe. Retourne l'EditBox.
 function Widgets.MakeSearchBox(parent, placeholder, onChanged)
     local e = CreateFrame("EditBox", nil, parent, "BackdropTemplate")
     e:SetAutoFocus(false); e:SetFontObject("GameFontHighlightSmall")
     e:SetTextInsets(22, 20, 2, 2)
-    e:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-    e:SetBackdropColor(0.06, 0.06, 0.08, 1); e:SetBackdropBorderColor(0.55, 0.35, 0.85, 1)
+    ns.Style.Paint(e, { 0.04, 0.04, 0.05, 1 }, ns.Style.COL.border)
     local ic = e:CreateTexture(nil, "OVERLAY")
     ic:SetSize(14, 14); ic:SetPoint("LEFT", 5, 0)
     ic:SetTexture("Interface\\Common\\UI-Searchbox-Icon")

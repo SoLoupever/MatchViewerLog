@@ -2,7 +2,7 @@ local addonName, ns = ...
 
 -- ====================================================
 -- ACHIEVEMENTBUTTON — hauts faits mascottes (bouclier + points),
--- barre du haut, a droite de "Uniques". Clic = reutilise le handler
+-- barre du haut, au milieu (remplit frame.achievBox). Clic = reutilise le handler
 -- Blizzard du Codex (PetJournalAchievementStatus_OnClick).
 -- ====================================================
 
@@ -19,12 +19,8 @@ end
 local function Build()
     if box then return end
     local frame = ns.Frame and ns.Frame.frame
-    local anchor = frame and frame.uniqueBox
-    if not anchor then return end
-
-    box = CreateFrame("Frame", nil, frame, "InsetFrameTemplate3")
-    box:SetSize(64, 20)
-    box:SetPoint("LEFT", anchor, "RIGHT", 6, 0)
+    box = frame and frame.achievBox
+    if not box then return end
 
     local icon = box:CreateTexture(nil, "OVERLAY")
     icon:SetSize(18, 18); icon:SetPoint("RIGHT", -6, 0)
@@ -36,7 +32,7 @@ local function Build()
 
     local btn = CreateFrame("Button", nil, box)
     btn:SetAllPoints()
-    local hl = btn:CreateTexture(nil, "HIGHLIGHT"); hl:SetAllPoints(); hl:SetColorTexture(1, 1, 1, 0.1)
+    local hl = btn:CreateTexture(nil, "HIGHLIGHT"); hl:SetAllPoints(); hl:SetColorTexture(1, 1, 1, 0.08)
     btn:SetScript("OnClick", function()
         if PetJournalAchievementStatus_OnClick then PetJournalAchievementStatus_OnClick() end
     end)

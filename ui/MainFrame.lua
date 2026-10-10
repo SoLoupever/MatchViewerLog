@@ -133,6 +133,19 @@ local function Build()
 
     Darken(left); Darken(center); Darken(right)
 
+    -- Hauts faits : au milieu de la rangee du haut (rempli par AchievementButton).
+    local achievBox = CreateFrame("Frame", nil, frame, "InsetFrameTemplate3")
+    achievBox:SetSize(64, 20)
+    achievBox:SetPoint("TOP", frame, "TOP", 0, -26)
+    frame.achievBox = achievBox
+
+    -- Zone des boutons utilitaires : au-dessus du panneau droit.
+    local util = CreateFrame("Frame", nil, frame)
+    util:SetHeight(26)
+    util:SetPoint("BOTTOMLEFT", right, "TOPLEFT", 0, 2)
+    util:SetPoint("BOTTOMRIGHT", right, "TOPRIGHT", 0, 2)
+    frame.utilityAnchor = util
+
     ns.Frame.frame  = frame
     ns.Frame.left   = left
     ns.Frame.center = center
