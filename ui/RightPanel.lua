@@ -186,7 +186,7 @@ Update = function()
             row:Hide()
         end
     end
-    FauxScrollFrame_Update(scroll, n, maxRows, ROW_H)
+    FauxScrollFrame_Update(scroll, listShown and n or 0, maxRows, ROW_H)
 end
 
 local function AcquireRow(parent, i)

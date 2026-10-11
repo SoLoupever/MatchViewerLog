@@ -50,6 +50,14 @@ function Scripts.SetCode(teamID, code)
     return true
 end
 
+function Scripts.Delete(teamID)
+    local d = db()
+    if not (d and teamID and d[teamID]) then return false end
+    d[teamID] = nil
+    ns.Fire("MSVL_SCRIPTS_CHANGED")
+    return true
+end
+
 -- teamIDs ayant un script exploitable, tries par nom d'equipe MVL.
 function Scripts.AllScriptedIDs()
     local d, out = db(), {}

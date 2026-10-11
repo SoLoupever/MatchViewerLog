@@ -18,6 +18,9 @@ ns._locales.frFR = {
     CODE_SAVE           = "Enregistrer",
     CODE_SAVED          = "Script enregistre.",
     CODE_ERROR          = "Erreur de script",
+    CODE_DELETE         = "Supprimer",
+    CODE_DELETE_CONFIRM = "Supprimer le script de l'equipe \"%s\" ?",
+    CODE_DELETED        = "Script supprime.",
 
     -- Rangee de boutons + import.
     SCRIPT_SAVE_BTN     = "Enregistrer",

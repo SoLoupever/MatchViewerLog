@@ -19,6 +19,9 @@ ns._locales.enUS = {
     CODE_SAVE           = "Save",
     CODE_SAVED          = "Script saved.",
     CODE_ERROR          = "Script error",
+    CODE_DELETE         = "Delete",
+    CODE_DELETE_CONFIRM = "Delete the script of team \"%s\"?",
+    CODE_DELETED        = "Script deleted.",
 
     -- Button row + import.
     SCRIPT_SAVE_BTN     = "Save",
