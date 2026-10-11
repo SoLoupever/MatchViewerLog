@@ -4,14 +4,31 @@ local addonName, ns = ...
 -- RIGHTPANELSCRIPT — injecte le mode "Script" a droite de "File"
 -- dans le panneau droit de MVL (via RegisterRightPanelMode). Edite le
 -- script "code" de l'equipe CHARGEE. Bouton d'import des scripts
--- Rematch (tdBattlePetScript). Bouton "Enregistrer" reserve : pas
--- encore de fonction, cf. discussion en cours.
+-- . Bouton "Enregistrer" = interrupteur de
+-- l'enregistrement de combat (rouge quand actif), cf. BattleRecorder.
 -- ====================================================
 
 ns.RegisterModule("RightPanelScript", {})
 
 local PAD = 8
-local container, codeEditor, headerBtn, hintFS
+local container, codeEditor, headerBtn, hintFS, recordBtn
+
+-- Couleur du bouton Enregistrer : rouge quand l'enregistrement est arme.
+local function PaintRecordBtn(b)
+    local on = ns.Recorder.IsArmed()
+    if on then
+        b:SetBackdropColor(0.45, 0.07, 0.07, 1)
+    else
+        b:SetBackdropColor(0.14, 0.12, 0.18, 1)
+    end
+    if b.hovered then
+        b:SetBackdropBorderColor(1, 0.82, 0, 1)
+    elseif on then
+        b:SetBackdropBorderColor(1, 0.25, 0.25, 1)
+    else
+        b:SetBackdropBorderColor(0.4, 0.3, 0.55, 1)
+    end
+end
 
 -- teamID actuellement edite = equipe chargee dans MVL.
 function ns.CurrentEditTeam()
@@ -19,15 +36,7 @@ function ns.CurrentEditTeam()
     return cur and cur.sourceTeamID or nil
 end
 
-local function SmallBtn(parent, w, label)
-    local b = CreateFrame("Button", nil, parent, "BackdropTemplate")
-    b:SetSize(w, 20)
-    b:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-    b:SetBackdropColor(0.14, 0.12, 0.18, 1); b:SetBackdropBorderColor(0.4, 0.3, 0.55, 1)
-    b.text = b:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    b.text:SetPoint("CENTER"); b.text:SetText(label)
-    return b
-end
+local SmallBtn = ns.Widgets.SmallBtn
 
 local function Refresh()
     if not (container and container:IsShown()) then return end
@@ -74,11 +83,25 @@ local function BuildContainer(panel)
         end)
     end)
 
-    -- Rangee A : Enregistrer (reserve, aucune fonction pour le moment) +
+    -- Rangee A : Enregistrer (interrupteur d'enregistrement de combat) +
     -- Code (repere visuel, forme unique desormais) + Deployer (occupe tout
     -- l'espace restant a droite jusqu'au bord).
     local saveBtn = SmallBtn(container, 70, ns.L("SCRIPT_SAVE_BTN"))
     saveBtn:SetPoint("TOPLEFT", headerBtn, "BOTTOMLEFT", 0, -4)
+    PaintRecordBtn(saveBtn)
+    saveBtn:SetScript("OnEnter", function(self)
+        self.hovered = true; PaintRecordBtn(self)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:AddLine(ns.L("REC_TIP_TITLE"), 0.8, 0.5, 1)
+        GameTooltip:AddLine(ns.L(ns.Recorder.IsArmed() and "REC_TIP_ON" or "REC_TIP_OFF"), 1, 1, 1, true)
+        GameTooltip:Show()
+    end)
+    saveBtn:SetScript("OnLeave", function(self)
+        self.hovered = false; PaintRecordBtn(self)
+        GameTooltip_Hide()
+    end)
+    saveBtn:SetScript("OnClick", function() ns.Recorder.Toggle() end)
+    recordBtn = saveBtn
 
     local codeBtn = SmallBtn(container, 70, ns.L("SCRIPT_KIND_CODE"))
     codeBtn:SetPoint("LEFT", saveBtn, "RIGHT", 4, 0)
@@ -127,5 +150,6 @@ ns.MVL.RegisterRightPanelMode({
     end,
 })
 
+ns.On("MSVL_RECORD_STATE", function() if recordBtn then PaintRecordBtn(recordBtn) end end)
 ns.On("TEAM_LOADED", Refresh)
 ns.On("MSVL_SCRIPTS_CHANGED", Refresh)

@@ -43,10 +43,13 @@ engine\Director.lua
 fonctionnalite\ScriptStore.lua
 fonctionnalite\ScriptShare.lua
 fonctionnalite\ScriptRunner.lua
+fonctionnalite\BattleRecorder.lua
 fonctionnalite\Deploy.lua
 
 ## -- INTERFACE --
+ui\Widgets.lua
 ui\BattleButton.lua
+ui\BattleLogWindow.lua
 ui\OptionKey.lua
 ui\CodeEditor.lua
 ui\RightPanelScript.lua
