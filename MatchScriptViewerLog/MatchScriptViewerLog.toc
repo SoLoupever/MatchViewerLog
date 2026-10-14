@@ -1,4 +1,4 @@
-## Interface: 120100
+## Interface: 120105
 ## Title: MatchScriptViewerLog |cffa060ffScripts de combat|r
 ## Notes: Dependance de MatchViewerLog : scripts de combat de mascottes, une action par pression.
 ## Author: SoLoup_ever

@@ -1,4 +1,4 @@
-## Interface: 120100
+## Interface: 120105
 ## Title: MatchViewerLog |cffff40a0By Soloup_ever|r
 ## Notes: Gestionnaire de combats de mascottes.
 ## Author: SoLoup_ever

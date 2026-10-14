@@ -1,4 +1,4 @@
-## Interface: 120100
+## Interface: 120105
 ## Title: MatchViewerLog_Converter |cff40c0a0Import|r
 ## Notes: Convertisseur d'import pour MatchViewerLog : teams Rematch, codes Xufu et scripts tdBattlePetScript.
 ## Author: SoLoup_ever
