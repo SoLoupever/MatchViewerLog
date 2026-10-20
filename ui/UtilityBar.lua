@@ -65,6 +65,7 @@ local function SpellNameByID(id)
 end
 
 local function ItemCount(id)
+    if C_Item and C_Item.GetItemCount then return C_Item.GetItemCount(id) or 0 end
     return (GetItemCount and GetItemCount(id)) or 0
 end
 
