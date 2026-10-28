@@ -71,6 +71,7 @@ ns._locales.frFR = {
     CARD_COLLECTED       = "Collectees :",
     CARD_HEALTH          = "Vie",
     CARD_NOT_OWNED       = "Mascotte non possedee",
+    CARD_SOURCE          = "Source :",
     PETTEAM_TITLE        = "Dans %d team(s)",
     PETTEAM_MORE         = "+%d autre(s)",
     CENTER_DEPLOY        = "Sortir",

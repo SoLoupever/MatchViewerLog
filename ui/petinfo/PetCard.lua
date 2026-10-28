@@ -26,6 +26,11 @@ local function PossibleBreeds(speciesID)
     return names
 end
 
+local function SourceLine(sourceText)
+    if not sourceText or sourceText == "" then return nil end
+    return Hex(1, 0.82, 0) .. ns.L("CARD_SOURCE") .. "|r " .. sourceText
+end
+
 local collectedCache = {}
 local function CollectedBreeds(speciesID)
     if collectedCache[speciesID] then return collectedCache[speciesID] end
@@ -117,7 +122,7 @@ end
 local function Fill(anchor, petID)
     -- Mascotte prise au curseur (drag vers un slot) : la carte gene, on la masque.
     if GetCursorInfo() == "battlepet" then PetCard.Hide(); return end
-    local speciesID, customName, level, _, _, displayID, _, name, _, petType = C_PetJournal.GetPetInfoByPetID(petID)
+    local speciesID, customName, level, _, _, displayID, _, name, _, petType, _, sourceText = C_PetJournal.GetPetInfoByPetID(petID)
     if not name then return end
     EnsureCard()
     card.speciesID, card.petID = speciesID, petID
@@ -157,6 +162,8 @@ local function Fill(anchor, petID)
         local detail = #parts > 0 and ("  (" .. table.concat(parts, ", ") .. ")") or ""
         L[#L + 1] = Hex(1, 0.82, 0) .. ns.L("CARD_COLLECTED") .. "|r " .. col.total .. detail
     end
+    local src = SourceLine(sourceText)
+    if src then L[#L + 1] = src end
     card.body:SetText(table.concat(L, "\n"))
 
     -- 6 sorts (levelList = niveau de deblocage de chaque sort, donnee du jeu).
@@ -201,7 +208,7 @@ end
 -- niveau de deblocage. Pas de stats/breed (mascotte absente de la collection).
 local function FillSpecies(anchor, speciesID)
     if GetCursorInfo() == "battlepet" then PetCard.Hide(); return end
-    local name, _, petType, _, _, _, _, _, _, _, _, displayID = C_PetJournal.GetPetInfoBySpeciesID(speciesID)
+    local name, _, petType, _, sourceText, _, _, _, _, _, _, displayID = C_PetJournal.GetPetInfoBySpeciesID(speciesID)
     if not name then return end
     EnsureCard()
     card.speciesID, card.petID = speciesID, nil
@@ -222,6 +229,8 @@ local function FillSpecies(anchor, speciesID)
     local L = { "|cffff6060" .. ns.L("CARD_NOT_OWNED") .. "|r" }
     local poss = PossibleBreeds(speciesID)
     if poss then L[#L + 1] = Hex(1, 0.82, 0) .. ns.L("CARD_POSSIBLE_BREEDS") .. "|r " .. table.concat(poss, ", ") end
+    local src = SourceLine(sourceText)
+    if src then L[#L + 1] = src end
     card.body:SetText(table.concat(L, "\n"))
 
     local abilList, levelList = C_PetJournal.GetPetAbilityList(speciesID)

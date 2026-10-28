@@ -73,6 +73,7 @@ ns._locales.enUS = {
     CARD_COLLECTED       = "Collected:",
     CARD_HEALTH          = "Health",
     CARD_NOT_OWNED       = "Not collected yet",
+    CARD_SOURCE          = "Source:",
     PETTEAM_TITLE        = "In %d team(s)",
     PETTEAM_MORE         = "+%d more",
     CENTER_DEPLOY        = "Deploy",
