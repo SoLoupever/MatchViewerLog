@@ -503,8 +503,9 @@ local function Build()
 
     SetMode("teams")
     Update()
-    ns.On("CATS_CHANGED", Update)
-    ns.On("TEAMS_CHANGED", Update)
+    local function UpdateIfShown() if ns.IsFrameShown() then Update() end end
+    ns.On("CATS_CHANGED", UpdateIfShown)
+    ns.On("TEAMS_CHANGED", UpdateIfShown)
     -- Deplie la categorie de destination a chaque sauvegarde/deplacement de
     -- team (TeamStore.Save/SetInfo) : sinon une team fraichement rangee dans
     -- une categorie repliee (typiquement "Aucune categorie" la 1ere fois)
@@ -519,4 +520,4 @@ ns.On("MVL_FRAME_SHOW", function() if built then Update() end end)
 -- Un pet monte en niveau : la File "a monter" se met a jour toute seule.
 ns.RegisterWowEvent("PET_JOURNAL_LIST_UPDATE", function()
     if built and mode == "queue" then Update() end
-end)
+end, true)

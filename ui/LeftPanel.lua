@@ -313,6 +313,7 @@ end
 -- ces rafales en un seul re-tri complet au lieu d'un par event.
 local invalidatePending = false
 local function Invalidate()
+    if not ns.IsFrameShown() then orderedDirty = true; return end
     if invalidatePending then return end
     invalidatePending = true
     C_Timer.After(0.1, function()
@@ -325,6 +326,7 @@ end
 ns.On("MVL_FRAME_READY", Build)
 ns.On("MVL_FRAME_SHOW", UpdateList)
 ns.On("ROSTER_REFRESH", Invalidate)
-ns.On("PET_SELECTED", UpdateList)
-ns.On("TEAMS_CHANGED", UpdateList)
+local function UpdateIfShown() if ns.IsFrameShown() then UpdateList() end end
+ns.On("PET_SELECTED", UpdateIfShown)
+ns.On("TEAMS_CHANGED", UpdateIfShown)
 ns.RegisterWowEvent("PET_JOURNAL_LIST_UPDATE", Invalidate)

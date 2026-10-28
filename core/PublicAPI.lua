@@ -54,7 +54,7 @@ local API = {
     -- Bus interne (memes fonctions que le noyau, pas un doublon).
     On               = function(evt, fn) return ns.On(evt, fn) end,
     Fire             = function(evt, ...) return ns.Fire(evt, ...) end,
-    RegisterWowEvent = function(evt, fn) return ns.RegisterWowEvent(evt, fn) end,
+    RegisterWowEvent = function(evt, fn, visibleOnly) return ns.RegisterWowEvent(evt, fn, visibleOnly) end,
     RegisterModule   = function(name, tbl) return ns.RegisterModule(name, tbl) end,
 
     -- Acces lecture aux donnees d'equipes (le compagnon ne stocke pas ici).

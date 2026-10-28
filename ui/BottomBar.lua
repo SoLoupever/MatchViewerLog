@@ -40,7 +40,7 @@ local function Build()
         end
         C_Timer.After(0.1, UpdateSummon)
     end)
-    ns.RegisterWowEvent("COMPANION_UPDATE", UpdateSummon)
+    ns.RegisterWowEvent("COMPANION_UPDATE", UpdateSummon, true)
     ns.On("MVL_FRAME_SHOW", UpdateSummon)
     ns.On("PET_SELECTED", UpdateSummon)
     UpdateSummon()

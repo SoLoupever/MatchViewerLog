@@ -230,13 +230,13 @@ end
 
 ns.On("MVL_FRAME_READY", BuildWhenSafe)
 ns.On("MVL_FRAME_SHOW", function() if built then RefreshAll() end end)
-ns.RegisterWowEvent("BAG_UPDATE_DELAYED", function() if built then RefreshAll() end end)
-ns.RegisterWowEvent("SPELLS_CHANGED", function() if built then RefreshAll() end end)
+ns.RegisterWowEvent("BAG_UPDATE_DELAYED", function() if built then RefreshAll() end end, true)
+ns.RegisterWowEvent("SPELLS_CHANGED", function() if built then RefreshAll() end end, true)
 -- Recharge du sort de ranimation : rafraichit l'animation.
-ns.RegisterWowEvent("SPELL_UPDATE_COOLDOWN", function() if built then RefreshAll() end end)
+ns.RegisterWowEvent("SPELL_UPDATE_COOLDOWN", function() if built then RefreshAll() end end, true)
 -- Buff du chapeau ajoute/retire : on met a jour le toggle.
-ns.RegisterWowEvent("UNIT_AURA", function(unit)
-    if unit == "player" and safariBtn then UpdateSafari(safariBtn) end
-end)
+ns.RegisterWowUnitEvent("UNIT_AURA", "player", function()
+    if safariBtn then UpdateSafari(safariBtn) end
+end, true)
 -- Sortie de combat : (re)regle la macro du toggle qui etait bloquee en combat.
-ns.RegisterWowEvent("PLAYER_REGEN_ENABLED", function() if safariBtn then UpdateSafari(safariBtn) end end)
+ns.RegisterWowEvent("PLAYER_REGEN_ENABLED", function() if safariBtn then UpdateSafari(safariBtn) end end, true)

@@ -310,6 +310,6 @@ ns.RegisterWowEvent("CURSOR_CHANGED", function()
         dragHid = false
         RestorePinned()
     end
-end)
+end, true)
 
 ns.RegisterWowEvent("PET_JOURNAL_LIST_UPDATE", function() wipe(collectedCache) end)

@@ -608,10 +608,10 @@ local function Build()
 end
 
 ns.On("MVL_FRAME_READY", Build)
-ns.On("MVL_FRAME_SHOW", function() if built then Relayout(); RefreshAll() end end)
+ns.On("MVL_FRAME_SHOW", function() if built then Relayout(); RefreshAll(); UpdateTarget() end end)
 ns.On("TEAM_LOADED", RefreshAll)
-ns.RegisterWowEvent("PLAYER_TARGET_CHANGED", UpdateTarget)
+ns.RegisterWowEvent("PLAYER_TARGET_CHANGED", UpdateTarget, true)
 ns.On("TEAMS_CHANGED", UpdateTarget)
 -- Les PV changent apres un combat : on rafraichit les barres de vie.
-ns.RegisterWowEvent("PET_BATTLE_CLOSE", function() if built then RefreshAll() end end)
-ns.RegisterWowEvent("PET_JOURNAL_LIST_UPDATE", function() if built then RefreshAll() end end)
+ns.RegisterWowEvent("PET_BATTLE_CLOSE", function() if built then RefreshAll() end end, true)
+ns.RegisterWowEvent("PET_JOURNAL_LIST_UPDATE", function() if built then RefreshAll() end end, true)
