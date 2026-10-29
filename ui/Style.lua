@@ -98,5 +98,13 @@ function Style.Round(tex, owner)
     return tex
 end
 
+-- Couleur d'accent par type de mascotte (index = petType 1..10).
+Style.TYPE_COL = {
+    [1] = { 0.45, 0.65, 0.95, 1 }, [2] = { 0.40, 0.80, 0.45, 1 }, [3] = { 0.75, 0.80, 0.95, 1 },
+    [4] = { 0.70, 0.45, 0.85, 1 }, [5] = { 0.80, 0.70, 0.55, 1 }, [6] = { 0.55, 0.45, 0.95, 1 },
+    [7] = { 0.95, 0.55, 0.25, 1 }, [8] = { 0.90, 0.75, 0.30, 1 }, [9] = { 0.35, 0.75, 0.95, 1 },
+    [10] = { 0.75, 0.75, 0.80, 1 },
+}
+
 -- Texcoords de l'icone nette de type (sous-region de l'atlas PetIcon-*).
 Style.TYPE_COORDS = { 0.796875, 0.4921875, 0.50390625, 0.65625 }
