@@ -1,7 +1,11 @@
 # MatchViewerLog
 MatchViewerLog is a modular pet battle addon for World of Warcraft. Manage pets and teams, import your Rematch data, and install required modules easily. Featuring a modern ViewerLog-style UI, the addon is actively developed 
 
-[![](https://media.forgecdn.net/attachments/description/1668460/description_1f14e088-f2d7-423b-b41c-ea39a92953a2.png)](https://discord.gg/2gfEKGAT46)
+<p align="center">
+  <a href="https://github.com/SoLoupever/MatchViewerLog"><img src="https://media.forgecdn.net/attachments/description/1668460/description_aaa514e4-b05f-49fc-b0e9-20fa91847d94.png" width="32%" alt="GitHub"></a>
+  <a href="https://www.curseforge.com/wow/addons/matchviewerlog"><img src="https://media.forgecdn.net/attachments/description/1668460/description_18e0e616-459d-4694-bd96-2c13bc7c2fba.png" width="32%" alt="CurseForge"></a>
+  <a href="https://discord.gg/2gfEKGAT46"><img src="https://media.forgecdn.net/attachments/description/1668460/description_cc17be62-5899-41f3-925a-67250846c653.png" width="32%" alt="Discord"></a>
+</p>
 
 #   
 ![](https://media.forgecdn.net/attachments/description/1668460/description_0bdac378-23db-4826-a77d-d6b4e57f04df.png)
