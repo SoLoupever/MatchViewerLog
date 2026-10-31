@@ -3,9 +3,8 @@ local addonName, ns = ...
 -- ====================================================
 -- NEWPETSELECT — clic sur le toast Blizzard "nouvelle mascotte".
 -- Blizzard ouvre le Codex et appelle PetJournal_SelectPet(journal,
--- petID). Comme JournalTakeover masque le journal Blizzard, cette
--- selection n'etait pas reportee : on la relaie vers la liste MVL
--- (selection + defilement). Aucune dependance dure : si la fonction
+-- petID). Notre fenetre recouvre le journal : on relaie la selection
+-- vers la liste MVL (selection + defilement). Aucune dependance dure : si la fonction
 -- Blizzard n'existe pas, on ne fait rien.
 -- ====================================================
 

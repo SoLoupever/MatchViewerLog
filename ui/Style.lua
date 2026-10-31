@@ -260,6 +260,20 @@ function Style.SlotArt(frame)
     frame.decal:Hide()
 end
 
+-- Fond de la barre du nom de team (theme Blizzard) : bande de _PetJournalHorizTile (64x128, lignes 30-56), assombrie comme les cartes.
+local TEAMBAR_TEX = "Interface\\PetBattles\\_PetJournalHorizTile"
+local TEAMBAR_DIM = 0.7
+function Style.TeamBarArt(bar)
+    if not IsBlizz() then return end
+    local t = bar:CreateTexture(nil, "BACKGROUND", nil, 1)
+    t:SetPoint("TOPLEFT", 1, -1); t:SetPoint("BOTTOMRIGHT", -1, 1)
+    t:SetTexture(TEAMBAR_TEX)
+    t:SetTexCoord(0, 1, 30 / 128, 56 / 128)
+    t:SetDesaturated(true)
+    t:SetVertexColor(TEAMBAR_DIM, TEAMBAR_DIM, TEAMBAR_DIM * 1.1)
+    bar.back = t
+end
+
 -- Texture 512x1024 ; zone utilisee (px) et encoche de l'icone : centre + ouverture interne.
 local TEX_W, TEX_H = 512, 1024
 local REG_X, REG_Y, REG_W, REG_H = 0, 496, 226, 112

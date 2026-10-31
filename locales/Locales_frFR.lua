@@ -28,7 +28,6 @@ ns._locales.frFR = {
     UNIQUE_PETS        = "Uniques",
     ACHIEV_TITLE       = "Hauts faits des mascottes",
     ACHIEV_HINT        = "Cliquer pour ouvrir les hauts faits de combats de mascottes.",
-    ACHIEV_SHORT       = "Hauts faits",
     SLOT_EMPTY         = "Vide",
     BTN_SUMMON         = "Invoquer",
     BTN_FIND_BATTLE    = "Trouver un combat",

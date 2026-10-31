@@ -156,7 +156,6 @@ local function UpdateList()
 
     FauxScrollFrame_Update(scroll, num, maxRows, ROW_H)
 end
-ns.MVL_UpdateRoster = UpdateList
 
 -- Amene une mascotte dans la zone visible et rafraichit (utilise quand une
 -- selection vient de l'exterieur, ex: clic sur le toast Blizzard).

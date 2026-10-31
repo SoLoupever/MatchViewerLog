@@ -44,8 +44,6 @@ function ns.TeamHasScript(teamID)
 end
 
 local API = {
-    version = 1,
-
     -- Valeur d'un slot aleatoire "pioche dans la file d'XP" (= ns.RANDOM_XP).
     -- Expose pour que le convertisseur mappe les slots leveling Rematch dessus
     -- sans redefinir la constante de son cote.
@@ -84,9 +82,6 @@ local API = {
         if t and ns.Teams then ns.Teams.Load(t) end
     end,
 
-    -- Ancre du panneau droit (le compagnon y greffe son UI de mode).
-    GetRightPanel = function() return ns.Frame and ns.Frame.right end,
-
     -- Ajoute un mode a droite des modes de base (Teams/Cibles/File).
     -- def = { key, label, color = {r,g,b}, onShow = f(panel), onHide = f(panel) }
     RegisterRightPanelMode = function(def)
@@ -120,7 +115,6 @@ local API = {
     RegisterTeamScriptProvider = function(fn)
         if type(fn) == "function" then ns.teamScriptProviders[#ns.teamScriptProviders + 1] = fn end
     end,
-    TeamHasScript = function(id) return ns.TeamHasScript(id) end,
     -- Le compagnon demande a MVL de rafraichir l'affichage des teams
     -- (ex: apres modification d'un script) sans coupler leurs internes.
     NotifyTeamsVisualChanged = function() if ns.Fire then ns.Fire("TEAMS_CHANGED") end end,

@@ -6,9 +6,8 @@ local addonName, ns = ...
 -- "aleatoires par type". Voir aussi, tous extraits de ce fichier et
 -- attaches au meme ns.Teams : TeamQueue (file d'XP), TeamTargets (dompteurs),
 -- TeamLoadout (sync loadout Blizzard), TeamResolve (matching import +
--- resolution "non possede"), TeamCaging (repli mise en cage) et
--- TeamMigrations (migrations one-shot). La selection de mascotte epinglee
--- (ns.SetSelectedPet) vit a part, dans fonctionnalite/Selection.lua.
+-- resolution "non possede") et TeamCaging (repli mise en cage). La selection
+-- de mascotte epinglee (ns.SetSelectedPet) vit a part, dans fonctionnalite/Selection.lua.
 -- ====================================================
 
 local Teams = ns.RegisterModule("TeamStore", {})
@@ -80,8 +79,6 @@ local function NormalizeLeveling(random, special)
         end
     end
 end
--- Exposee pour TeamMigrations.lua (meme normalisation, pas de doublon).
-Teams.NormalizeLeveling = NormalizeLeveling
 
 -- Infos visuelles d'une mascotte (petID GUID). nil si non affichable.
 function Teams.GetPetDisplay(petID)
@@ -406,3 +403,4 @@ function Teams.RestoreState()
 end
 
 ns.On("TEAM_LOADED", Teams.SaveState)
+ns.On("DB_READY", Teams.RestoreState)

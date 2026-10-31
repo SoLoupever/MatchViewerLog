@@ -28,45 +28,33 @@ local bar, buttons, built = nil, {}, false
 local safariBtn
 
 local function SpellName(id)
-    if C_Spell and C_Spell.GetSpellInfo then
-        local i = C_Spell.GetSpellInfo(id)
-        return i and i.name
-    end
-    return GetSpellInfo and GetSpellInfo(id) or nil
+    local i = C_Spell.GetSpellInfo(id)
+    return i and i.name
 end
 
 local function SpellTexture(id)
-    if C_Spell and C_Spell.GetSpellTexture then return C_Spell.GetSpellTexture(id) end
-    return select(3, GetSpellInfo(id))
+    return C_Spell.GetSpellTexture(id)
 end
 
 local function SpellCooldown(id)
-    if C_Spell and C_Spell.GetSpellCooldown then
-        local i = C_Spell.GetSpellCooldown(id)
-        if i then return i.startTime, i.duration, i.isEnabled end
-    elseif GetSpellCooldown then
-        return GetSpellCooldown(id)
-    end
+    local i = C_Spell.GetSpellCooldown(id)
+    if i then return i.startTime, i.duration, i.isEnabled end
 end
 
 local function ItemTexture(id)
-    if C_Item and C_Item.GetItemIconByID then return C_Item.GetItemIconByID(id) end
-    return GetItemIcon and GetItemIcon(id) or nil
+    return C_Item.GetItemIconByID(id)
 end
 
 local function ItemName(id)
-    if C_Item and C_Item.GetItemNameByID then return C_Item.GetItemNameByID(id) end
-    return GetItemInfo and GetItemInfo(id) or nil
+    return C_Item.GetItemNameByID(id)
 end
 
 local function SpellNameByID(id)
-    if C_Spell and C_Spell.GetSpellName then return C_Spell.GetSpellName(id) end
-    return GetSpellInfo and GetSpellInfo(id) or nil
+    return C_Spell.GetSpellName(id)
 end
 
 local function ItemCount(id)
-    if C_Item and C_Item.GetItemCount then return C_Item.GetItemCount(id) or 0 end
-    return (GetItemCount and GetItemCount(id)) or 0
+    return C_Item.GetItemCount(id) or 0
 end
 
 -- Buff du chapeau de safari present sur le joueur ?

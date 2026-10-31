@@ -9,7 +9,6 @@ local addonName, ns = ...
 -- ====================================================
 
 local Filters = ns.RegisterModule("JournalFilters", {})
-ns.JournalFilters = Filters
 
 local FILTER_COLLECTED     = _G.LE_PET_JOURNAL_FILTER_COLLECTED
 local FILTER_NOT_COLLECTED = _G.LE_PET_JOURNAL_FILTER_NOT_COLLECTED

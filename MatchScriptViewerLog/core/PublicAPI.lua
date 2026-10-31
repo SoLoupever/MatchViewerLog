@@ -9,8 +9,6 @@ local addonName, ns = ...
 -- ====================================================
 
 local API = {
-    version = 1,
-
     -- Ecrit un script "code" sur une equipe. true si ok.
     StoreScriptCode = function(teamID, code)
         local s = ns.Scripts and ns.Scripts.Ensure(teamID)

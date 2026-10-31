@@ -43,7 +43,6 @@ fonctionnalite\TeamNotes.lua
 fonctionnalite\TeamLoadout.lua
 fonctionnalite\TeamResolve.lua
 fonctionnalite\TeamCaging.lua
-fonctionnalite\TeamMigrations.lua
 fonctionnalite\Selection.lua
 fonctionnalite\TeamShare.lua
 fonctionnalite\Options.lua

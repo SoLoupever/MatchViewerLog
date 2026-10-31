@@ -2,8 +2,6 @@ local addonName, ns = ...
 
 -- ====================================================
 -- CONST — donnees pures partagees. Aucune logique.
--- La matrice force/faiblesse des types arrivera avec la
--- barre de filtres (Phase 2) pour etre verifiee au poste.
 -- ====================================================
 
 -- breedID -> libelle (repli si besoin ; le breed reel vient de

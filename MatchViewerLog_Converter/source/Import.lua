@@ -271,7 +271,7 @@ function Import.Run(verbose)
     end
 
     -- "group:favorites" est garantie par MVL des le DB_READY (Categories.lua,
-    -- seed par defaut + migration) : plus besoin de la reinserer ici a la main.
+    -- seed par defaut) : plus besoin de la reinserer ici a la main.
 
     -- Filet de securite : garantit que les categories referencees par les teams
     -- importees (dont "group:none") existent bien dans la liste, sinon elles

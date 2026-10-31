@@ -598,6 +598,7 @@ local function Build()
     local teamBar = MakeBox(center, 26)
     teamBar:SetPoint("TOPLEFT", box, "BOTTOMLEFT", 0, -6); teamBar:SetPoint("TOPRIGHT", box, "BOTTOMRIGHT", 0, -6)
     ns.Style.Paint(teamBar, COL.team, COL.teamBd, true)
+    ns.Style.TeamBarArt(teamBar)
     -- Notes de la team : bouton a droite du nom (fenetre NotesDialog).
     local notesBtn = CreateFrame("Button", nil, teamBar)
     notesBtn:SetSize(20, 20); notesBtn:SetPoint("RIGHT", -4, 0)
