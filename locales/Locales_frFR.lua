@@ -55,6 +55,11 @@ ns._locales.frFR = {
     OPT_XP_RANDOM         = "Aleatoire a chaque combat",
     OPT_XP_LOWEST         = "Plus bas niveau d'abord",
     OPT_BASENAME          = "Afficher les noms de base (ignorer les renommages)",
+    OPT_THEME_LABEL       = "Theme de l'interface :",
+    THEME_MVL             = "MatchViewerLog",
+    THEME_BLIZZARD        = "Blizzard",
+    THEME_RELOAD_PROMPT   = "Recharger l'interface pour appliquer le theme ?",
+    THEME_PENDING         = "Actif apres rechargement de l'interface.",
     QUEUE_EMPTY        = "Aucune mascotte a monter",
 
     LEVELFILTER_MAX    = "Uniquement les mascottes niveau 25",

@@ -9,7 +9,7 @@ local addonName, ns = ...
 local OptionsPanel = ns.RegisterModule("OptionsPanel", {})
 ns.OptionsPanel = OptionsPanel
 
-local container, sortBtn, nbCheck, xpBtn, baseCheck
+local container, sortBtn, nbCheck, xpBtn, baseCheck, themeBtn, themeNote
 -- Controles injectes par un compagnon (ns.optionControls) : frames deja poses
 -- + ancre du dernier, pour empiler le suivant en dessous.
 local extraCtrls, extraAnchor = {}, nil
@@ -34,20 +34,18 @@ local XP_LABEL = {
 }
 local function XpLabel(mode) return ns.L(XP_LABEL[mode] or "OPT_XP_CLOSEST25") end
 
--- Bouton-selecteur generique (meme style que le picker de categorie).
-local function MakePicker(parent)
-    local b = CreateFrame("Button", nil, parent, "BackdropTemplate")
-    b:SetHeight(22)
-    b:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-    b:SetBackdropColor(0.12, 0.12, 0.16, 1); b:SetBackdropBorderColor(0.4, 0.4, 0.5, 1)
-    b.fs = b:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    b.fs:SetPoint("LEFT", 6, 0); b.fs:SetPoint("RIGHT", -18, 0)
-    b.fs:SetJustifyH("LEFT"); b.fs:SetWordWrap(false)
-    local arrow = b:CreateTexture(nil, "OVERLAY")
-    arrow:SetSize(12, 12); arrow:SetPoint("RIGHT", -4, 0)
-    arrow:SetAtlas("housing-floor-arrow-down-default")
-    return b
-end
+-- Bouton-selecteur generique (rendu par ns.Style selon le theme).
+local MakePicker = function(parent) return ns.Style.Picker(parent) end
+
+-- Theme : le changement n'est applique qu'au rechargement de l'interface.
+local function ThemeLabel(id) return ns.L(ns.Theme.LABEL[id] or "THEME_MVL") end
+
+StaticPopupDialogs["MATCHVIEWERLOG_THEME_RELOAD"] = {
+    text = ns.L("THEME_RELOAD_PROMPT"),
+    button1 = YES, button2 = NO,
+    OnAccept = function() (C_UI and C_UI.Reload or ReloadUI)() end,
+    timeout = 0, whileDead = true, hideOnEscape = true,
+}
 
 -- Pose les controles compagnons pas encore batis, empiles sous le dernier.
 local function BuildExtras()
@@ -142,8 +140,34 @@ local function Build(panel)
         ns.Options.Set("baseName", self:GetChecked() and true or false)
     end)
 
+    -- Theme de l'interface (applique au rechargement).
+    local themeLbl = container:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    themeLbl:SetPoint("TOPLEFT", baseCheck, "BOTTOMLEFT", 2, -16); themeLbl:SetText(ns.L("OPT_THEME_LABEL"))
+    themeBtn = MakePicker(container)
+    themeBtn:SetPoint("TOPLEFT", themeLbl, "BOTTOMLEFT", 0, -4)
+    themeBtn:SetPoint("RIGHT", container, "RIGHT", -2, 0)
+    themeBtn:SetScript("OnClick", function(self)
+        if not (MenuUtil and MenuUtil.CreateContextMenu) then return end
+        MenuUtil.CreateContextMenu(self, function(_, root)
+            root:SetTag("MVL_OPT_THEME")
+            for _, id in ipairs(ns.Theme.ORDER) do
+                root:CreateButton(ThemeLabel(id), function()
+                    ns.Theme.Set(id)
+                    self.fs:SetText(ThemeLabel(id))
+                    themeNote:SetShown(ns.Theme.PendingReload())
+                    if ns.Theme.PendingReload() then StaticPopup_Show("MATCHVIEWERLOG_THEME_RELOAD") end
+                end)
+            end
+        end)
+    end)
+    themeNote = container:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+    themeNote:SetPoint("TOPLEFT", themeBtn, "BOTTOMLEFT", 0, -4)
+    themeNote:SetPoint("RIGHT", container, "RIGHT", -2, 0)
+    themeNote:SetJustifyH("LEFT"); themeNote:SetWordWrap(true)
+    themeNote:SetText(ns.L("THEME_PENDING")); themeNote:Hide()
+
     -- Options natives posees : les compagnons s'empilent en dessous.
-    extraAnchor = baseCheck
+    extraAnchor = themeNote
     BuildExtras()
 
     container:Hide()
@@ -156,6 +180,8 @@ local function Sync()
     nbCheck:SetChecked(ns.Options.Get("nonBattleLast") and true or false)
     xpBtn.fs:SetText(XpLabel(ns.Options.Get("xpPick")))
     baseCheck:SetChecked(ns.Options.Get("baseName") and true or false)
+    themeBtn.fs:SetText(ThemeLabel(ns.Theme.Saved()))
+    themeNote:SetShown(ns.Theme.PendingReload())
     for _, c in ipairs(extraCtrls) do
         if c.def and c.def.sync then pcall(c.def.sync) end
     end

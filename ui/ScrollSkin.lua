@@ -27,6 +27,7 @@ end
 -- parent, pour recoller le rail sur toute la hauteur. Idempotent.
 function Skin.Bar(bar, scroll)
     if not bar or bar._mvlSkinned then return end
+    if ns.Style.IsBlizzard() then return end   -- theme Blizzard : barre native
     bar._mvlSkinned = true
 
     -- Fleches haut/bas : on les efface (FauxScrollFrame_Update ne fait que

@@ -10,7 +10,6 @@ local addonName, ns = ...
 ns.RegisterModule("LeftPanel", {})
 
 local ROW_H = 34          -- pas de la liste (ligne + espace)
-local ROW_GAP = 0
 local COL = ns.Style.COL
 local rows, scroll, search = {}, nil, nil
 
@@ -132,9 +131,11 @@ local function UpdateList()
             else row.name:SetTextColor(isOwned and 0.9 or 0.5, isOwned and 0.9 or 0.5, isOwned and 0.9 or 0.5) end
             local selOn = (ns.selectedPetID ~= nil and petID == ns.selectedPetID)
                 or (ns.selectedSpecies ~= nil and not petID and speciesID == ns.selectedSpecies)
-            row:SetBackdropBorderColor(selOn and 1 or 0, selOn and 0.82 or 0, 0, selOn and 1 or 0)
-            row.level:SetText(level and ("|cffffd200" .. level .. "|r") or "")
             local typeTex = ns.TypeIcon(petType)
+            if not ns.Style.UpdateRoster(row, selOn) then
+                row:SetBackdropBorderColor(selOn and 1 or 0, selOn and 0.82 or 0, 0, selOn and 1 or 0)
+            end
+            row.level:SetText(level and ("|cffffd200" .. level .. "|r") or "")
             if typeTex then
                 row.typeIcon:SetTexture(typeTex)
                 row.typeIcon:Show()
@@ -192,17 +193,18 @@ local function Build()
 
     -- Trait de separation entre les filtres (TypeBar) et la liste.
     local sep = left:CreateTexture(nil, "ARTWORK")
-    sep:SetColorTexture(0.21, 0.18, 0.10, 1)
+    sep:SetColorTexture(unpack(COL.edge))
     sep:SetPoint("TOPLEFT", 8, -88); sep:SetPoint("TOPRIGHT", -8, -88); sep:SetHeight(1)
 
     scroll = CreateFrame("ScrollFrame", "MatchViewerLogRosterScroll", left, "FauxScrollFrameTemplate")
     scroll:SetPoint("TOPLEFT", 8, -96)
-    scroll:SetPoint("BOTTOMRIGHT", -18, 6)
+    scroll:SetPoint("BOTTOMRIGHT", -ns.Style.SCROLL_INSET, 6)
     scroll:SetScript("OnVerticalScroll", function(self, o)
         FauxScrollFrame_OnVerticalScroll(self, o, ROW_H, UpdateList)
     end)
     ns.ScrollSkin.Apply(scroll)
 
+    local ROW_GAP = ns.Style.IsBlizzard() and 2 or 0
     local visible = math.floor(500 / ROW_H) + 1
     for i = 1, visible do
         local row = CreateFrame("Button", nil, left, "BackdropTemplate")
@@ -217,8 +219,8 @@ local function Build()
             row:SetPoint("TOPRIGHT", rows[i - 1], "BOTTOMRIGHT", 0, -ROW_GAP)
         end
 
-        local hl = row:CreateTexture(nil, "HIGHLIGHT"); hl:SetAllPoints()
-        hl:SetColorTexture(1, 1, 1, 0.08)
+        ns.Style.DecorateRoster(row)
+        ns.Style.RowHighlight(row)
 
         -- Clic gauche : selectionne. Clic droit : menu (invoquer/favori/cage/renommer).
         row:RegisterForClicks("LeftButtonUp", "RightButtonUp")

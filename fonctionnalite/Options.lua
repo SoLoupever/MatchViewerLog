@@ -23,7 +23,8 @@ ns.Options = Options
 --   lowest          plus bas niveau d'abord
 -- baseName : afficher les mascottes renommees avec leur nom de base
 --   (le nom personnalise est ignore dans les listes).
-local DEFAULTS = { sort = "level_name", nonBattleLast = false, xpPick = "closest25", baseName = false }
+-- theme : "mvl" (defaut actuel) | "blizzard" ; applique au rechargement (ns.Theme).
+local DEFAULTS = { sort = "level_name", nonBattleLast = false, xpPick = "closest25", baseName = false, theme = "mvl" }
 
 function Options.Get(key)
     local o = ns.DB and ns.DB.settings and ns.DB.settings.options
@@ -38,7 +39,7 @@ function Options.Set(key, val)
     ns.DB.settings.options[key] = val
     -- ROSTER_REFRESH : la liste de gauche (tri). MVL_OPTIONS_CHANGED : les autres
     -- consommateurs (ex: File d'XP a droite) sans re-trier la gauche pour rien.
-    ns.Fire("ROSTER_REFRESH")
+    if key ~= "theme" then ns.Fire("ROSTER_REFRESH") end
     ns.Fire("MVL_OPTIONS_CHANGED")
 end
 

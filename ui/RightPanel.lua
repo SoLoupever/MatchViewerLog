@@ -108,7 +108,7 @@ local function SetRow(row, item)
     if row.scriptIcon then row.scriptIcon:Hide() end
     if item.type == "cat" then
         row.arrow:Show()
-        row.arrow:SetAtlas(expanded[item.cat.id] and "housing-floor-arrow-down-default" or "housing-floor-arrow-up-default")
+        ns.Style.SetFoldIcon(row.arrow, expanded[item.cat.id])
         row.name:SetPoint("LEFT", row.arrow, "RIGHT", 6, 0)
         row.name:SetPoint("RIGHT", row.count, "LEFT", -6, 0)
         row.name:SetText("|cff" .. (item.cat.color or "ffd200") .. (item.cat.name or "?") .. "|r")
@@ -117,7 +117,7 @@ local function SetRow(row, item)
         row._type, row.catID, row.team, row.tgtKey, row.petID = "cat", item.cat.id, nil, nil, nil
     elseif item.type == "target" then
         row.arrow:Show()
-        row.arrow:SetAtlas(expanded["tgt:" .. item.target.npcID] and "housing-floor-arrow-down-default" or "housing-floor-arrow-up-default")
+        ns.Style.SetFoldIcon(row.arrow, expanded["tgt:" .. item.target.npcID])
         row.name:SetPoint("LEFT", row.arrow, "RIGHT", 6, 0)
         row.name:SetPoint("RIGHT", row.count, "LEFT", -6, 0)
         row.name:SetText("|cffffd200" .. (item.target.name or "?") .. "|r")
@@ -179,7 +179,8 @@ Update = function()
         local idx = offset + line
         if listShown and line <= maxRows and idx <= n then
             SetRow(row, items[idx])
-            row.zebra:SetShown(idx % 2 == 0)
+            row.zebra:SetShown(not row.bgTex and idx % 2 == 0)
+            if row.bgTex then row.bgTex:SetAlpha(items[idx].type == "team" and 0.45 or 1) end
             Paint(row)
             row:Show()
         else
@@ -196,12 +197,13 @@ local function AcquireRow(parent, i)
     row:SetBackdropColor(0, 0, 0, 0); row:SetBackdropBorderColor(0, 0, 0, 0)
 
     -- Fond une ligne sur deux + barre doree (categorie/cible depliee).
+    row.bgTex = ns.Style.RowBackground(row)   -- theme Blizzard : fond natif de liste
     row.zebra = row:CreateTexture(nil, "BACKGROUND")
     row.zebra:SetAllPoints(); row.zebra:SetColorTexture(1, 1, 1, 0.025); row.zebra:Hide()
 
     row.arrow = row:CreateTexture(nil, "OVERLAY")
     row.arrow:SetSize(14, 14); row.arrow:SetPoint("LEFT", 6, 0)
-    row.arrow:SetAtlas("housing-floor-arrow-up-default")
+    ns.Style.SetFoldIcon(row.arrow, false)
 
     row.count = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     row.count:SetPoint("RIGHT", -10, 0)
@@ -382,7 +384,7 @@ local function Build()
 
     scroll = CreateFrame("ScrollFrame", "MatchViewerLogTeamsScroll", panel, "FauxScrollFrameTemplate")
     scroll:SetPoint("TOPLEFT", PAD, -PAD - 32)
-    scroll:SetPoint("BOTTOMRIGHT", -PAD - 10, 38)
+    scroll:SetPoint("BOTTOMRIGHT", -ns.Style.SCROLL_INSET, 38)
     scroll:SetScript("OnVerticalScroll", function(self, o)
         FauxScrollFrame_OnVerticalScroll(self, o, ROW_H, Update)
     end)
@@ -472,6 +474,7 @@ local function Build()
             -- Couleur du mode : texte et contour teintes, fond sombre ; actif = rempli.
             local col = m.col or { 0.3, 0.3, 0.35 }
             local b = ns.Style.Button(panel, m.label, 40, 24, {
+                small = true,
                 bg = ns.Style.Tint(col, 0.10), border = ns.Style.Tint(col, 0.55),
                 text = { math.min(1, col[1] + 0.2), math.min(1, col[2] + 0.2), math.min(1, col[3] + 0.2) },
                 hover = col,

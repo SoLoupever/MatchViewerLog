@@ -87,7 +87,7 @@ end
 local function MakeCell(parent)
     local b = CreateFrame("Button", nil, parent, "BackdropTemplate")
     b:SetSize(CELL_W, CELL_H)
-    Style.Paint(b, COL.card, COL.edge)
+    Style.Paint(b, COL.card, COL.edge, true)
 
     local grp = CreateFrame("Frame", nil, b)
     grp:SetSize(68, 24); grp:SetPoint("CENTER")
@@ -150,7 +150,7 @@ local function EnsureCard()
 
     card.pill = CreateFrame("Frame", nil, card, "BackdropTemplate")
     card.pill:SetHeight(HEADER_H)
-    Style.Paint(card.pill, { 0.05, 0.16, 0.08, 1 }, { 0.20, 0.50, 0.25, 1 })
+    Style.Paint(card.pill, COL.pill, COL.pillBd, true)
     card.pill:SetPoint("RIGHT", card.book, "LEFT", -6, 0)
     card.pill:EnableMouse(true)
     card.typeIcon = card.pill:CreateTexture(nil, "ARTWORK")

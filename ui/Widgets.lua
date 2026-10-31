@@ -11,10 +11,22 @@ ns.Widgets = Widgets
 -- Barre de recherche a bordure carree doree (loupe + texte d'invite).
 -- onChanged(text) est appele a chaque frappe. Retourne l'EditBox.
 function Widgets.MakeSearchBox(parent, placeholder, onChanged)
+    -- Theme Blizzard : SearchBoxTemplate natif (loupe, croix et texte d'invite inclus).
+    if ns.Style.IsBlizzard() then
+        local sb = ns.Style.TryTemplate("EditBox", parent, "SearchBoxTemplate")
+        if sb then
+            sb:SetAutoFocus(false)
+            if sb.Instructions then sb.Instructions:SetText(placeholder or "") end
+            sb:HookScript("OnTextChanged", function(self)
+                if onChanged then onChanged(self:GetText() or "") end
+            end)
+            return sb
+        end
+    end
     local e = CreateFrame("EditBox", nil, parent, "BackdropTemplate")
     e:SetAutoFocus(false); e:SetFontObject("GameFontHighlightSmall")
     e:SetTextInsets(22, 20, 2, 2)
-    ns.Style.Paint(e, { 0.04, 0.04, 0.05, 1 }, ns.Style.COL.border)
+    ns.Style.Paint(e, ns.Style.COL.input, ns.Style.COL.border)
     local ic = e:CreateTexture(nil, "OVERLAY")
     ic:SetSize(14, 14); ic:SetPoint("LEFT", 5, 0)
     ic:SetTexture("Interface\\Common\\UI-Searchbox-Icon")

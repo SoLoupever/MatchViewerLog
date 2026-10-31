@@ -57,6 +57,11 @@ ns._locales.enUS = {
     OPT_XP_RANDOM         = "Random each battle",
     OPT_XP_LOWEST         = "Lowest level first",
     OPT_BASENAME          = "Show base names (ignore renames)",
+    OPT_THEME_LABEL       = "Interface theme:",
+    THEME_MVL             = "MatchViewerLog",
+    THEME_BLIZZARD        = "Blizzard",
+    THEME_RELOAD_PROMPT   = "Reload the UI to apply the theme?",
+    THEME_PENDING         = "Applied after reloading the UI.",
     QUEUE_EMPTY        = "No pet to level",
 
     LEVELFILTER_MAX    = "Level 25 pets only",

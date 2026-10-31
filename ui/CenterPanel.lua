@@ -51,16 +51,18 @@ end
 
 -- ---- menu de choix de sort (partage) ----
 local flyout
+local FLY_PAD
 local function EnsureFlyout()
     if flyout then return flyout end
+    FLY_PAD = ns.Style.IsBlizzard() and 7 or 4
     flyout = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
     flyout:SetFrameStrata("TOOLTIP")
-    ns.Style.Paint(flyout, { 0.04, 0.04, 0.05, 0.98 }, COL.border)
+    ns.Style.Paint(flyout, COL.flyout, COL.border)
     flyout.btns = {}
     for c = 1, 2 do
         local b = CreateFrame("Button", nil, flyout)
         b:SetSize(30, 30)
-        b:SetPoint("TOPLEFT", 4, -4 - (c - 1) * 34)
+        b:SetPoint("TOPLEFT", FLY_PAD, -FLY_PAD - (c - 1) * 34)
         b.tex = b:CreateTexture(nil, "ARTWORK"); b.tex:SetAllPoints(); b.tex:SetTexCoord(0.08, 0.92, 0.08, 0.92)
         local hl = b:CreateTexture(nil, "HIGHLIGHT"); hl:SetAllPoints(); hl:SetColorTexture(1, 0.82, 0, 0.3)
         b.check = b:CreateTexture(nil, "OVERLAY")
@@ -74,7 +76,7 @@ local function EnsureFlyout()
         end)
         flyout.btns[c] = b
     end
-    flyout:SetWidth(38)
+    flyout:SetWidth(30 + 2 * FLY_PAD)
     -- Se ferme quand la souris quitte le menu et son ancre.
     flyout:SetScript("OnUpdate", function(self, e)
         self.t = (self.t or 0) + e
@@ -97,7 +99,7 @@ local function ShowFlyout(anchor, i, tier)
         b.tex:SetTexture(ch.icon)
         b.check:SetColorTexture(1, 0.82, 0, (sel == ch.id) and 0.6 or 0)
     end
-    flyout:SetHeight(4 + 2 * 34)
+    flyout:SetHeight(2 * FLY_PAD + 2 * 34 - 4)
     flyout:ClearAllPoints()
     flyout:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", -4, -2)
     flyout:Show()
@@ -298,20 +300,30 @@ local function RefreshSlot(i)
     local slot = slots[i]
     if not slot then return end
     slot.lock:Hide(); slot.icon:SetDesaturated(false)
+    ns.Style.SetSlotArt(slot)
 
     local rand = ns.Teams and ns.Teams.GetRandomType(i)
-    if rand then slot.empty:SetText(ns.L("SLOT_EMPTY")); ShowRandom(slot, i, rand); return end
+    if rand then
+        local isXP = rand == ns.RANDOM_XP
+        ns.Style.SetSlotArt(slot, isXP and "leveling" or "random", (not isXP and rand ~= 0) and rand or nil)
+        slot.empty:SetText(ns.L("SLOT_EMPTY")); ShowRandom(slot, i, rand); return
+    end
 
     local special = ns.Teams and ns.Teams.GetSpecialSlotType(i)
-    if special then ShowSpecial(slot); return end
+    if special then ns.Style.SetSlotArt(slot, "ignored"); ShowSpecial(slot); return end
 
     local unowned = ns.Teams and ns.Teams.GetUnowned(i)
-    if unowned then slot.empty:SetText(ns.L("SLOT_EMPTY")); ShowUnowned(slot, unowned); return end
+    if unowned then
+        local _, _, utype = C_PetJournal.GetPetInfoBySpeciesID(unowned.species)
+        ns.Style.SetSlotArt(slot, nil, utype)
+        slot.empty:SetText(ns.L("SLOT_EMPTY")); ShowUnowned(slot, unowned); return
+    end
 
     local petID = ns.Teams and ns.Teams.current.pets[i]
     local info = petID and ns.Teams.GetPetDisplay(petID)
     slot.empty:SetText(ns.L("SLOT_EMPTY"))
     if info then
+        ns.Style.SetSlotArt(slot, nil, info.petType)
         slot.icon:SetTexture(info.icon); slot.icon:Show()
         slot.level:SetText(info.level and ("|cffffd200" .. info.level .. "|r") or "")
         slot.name:SetText(info.name or "")
@@ -404,8 +416,9 @@ local function Relayout()
         s:SetPoint("TOPLEFT", center, "TOPLEFT", 8, -y)
         s:SetPoint("TOPRIGHT", center, "TOPRIGHT", -8, -y)
         s:SetHeight(slotH)
+        local dx = (ns.Style.PlaceSlotIcon(s, s.iconBtn, center:GetWidth() - 16, slotH) or 8) - 8
         -- Barre de vie : tout l'espace entre l'icone et les 3 sorts.
-        s.hpBar:SetWidth(math.max(40, center:GetWidth() - 16 - 16 - 8 - (3 * ABIL_SIZE + 8)))
+        s.hpBar:SetWidth(math.max(40, center:GetWidth() - 16 - 16 - 8 - (3 * ABIL_SIZE + 8) - dx - (dx > 0 and 4 or 0)))
     end
 end
 
@@ -415,7 +428,7 @@ local function OnSlotReceive(i)
 end
 
 local function MakeBox(parent, h)
-    local b = ns.Style.Box(parent, { 0.04, 0.04, 0.05, 1 }, COL.edge)
+    local b = ns.Style.Box(parent, COL.slot, COL.edge)
     if h then b:SetHeight(h) end
     return b
 end
@@ -438,6 +451,7 @@ end
 
 local function BuildSlot(center, i)
     local slot = MakeBox(center)
+    ns.Style.SlotArt(slot)
     slot:EnableMouse(true)
     slot:SetScript("OnMouseUp", function(_, button) OnSlotClick(i, button) end)
     slot:SetScript("OnReceiveDrag", function() OnSlotReceive(i) end)
@@ -450,6 +464,7 @@ local function BuildSlot(center, i)
     iconBtn:SetScript("OnLeave", HidePetTip)
     iconBtn:SetScript("OnReceiveDrag", function() OnSlotReceive(i) end)
     iconBtn:SetScript("OnMouseUp", function(_, button) OnSlotClick(i, button) end)
+    slot.iconBtn = iconBtn
     slot.icon = iconBtn:CreateTexture(nil, "ARTWORK")
     slot.icon:SetAllPoints(); slot.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 
@@ -582,7 +597,7 @@ local function Build()
 
     local teamBar = MakeBox(center, 26)
     teamBar:SetPoint("TOPLEFT", box, "BOTTOMLEFT", 0, -6); teamBar:SetPoint("TOPRIGHT", box, "BOTTOMRIGHT", 0, -6)
-    teamBar:SetBackdropColor(0.12, 0.09, 0.09, 1); teamBar:SetBackdropBorderColor(0.45, 0.20, 0.20, 1)
+    ns.Style.Paint(teamBar, COL.team, COL.teamBd, true)
     -- Notes de la team : bouton a droite du nom (fenetre NotesDialog).
     local notesBtn = CreateFrame("Button", nil, teamBar)
     notesBtn:SetSize(20, 20); notesBtn:SetPoint("RIGHT", -4, 0)

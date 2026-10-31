@@ -16,7 +16,7 @@ local frame
 ns.Frame = ns.Frame or {}
 
 local function Darken(inset)
-    if not inset then return end
+    if not inset or ns.Style.IsBlizzard() then return end   -- Blizzard : fond natif de l'inset
     local t = inset:CreateTexture(nil, "BACKGROUND", nil, 6)
     t:SetAllPoints(inset)
     t:SetColorTexture(0.04, 0.04, 0.05, 0.94)
@@ -76,7 +76,9 @@ local function Build()
     if ButtonFrameTemplate_HidePortrait then ButtonFrameTemplate_HidePortrait(frame) end
     if frame.Inset then frame.Inset:Hide() end
     if frame.SetTitle then
-        frame:SetTitle("|cff4da6ff" .. ns.L("ADDON_NAME") .. "|r |cffff40a0" .. ns.L("BY_AUTHOR") .. "|r")
+        local name = ns.L("ADDON_NAME")
+        if not ns.Style.IsBlizzard() then name = "|cff4da6ff" .. name .. "|r" end
+        frame:SetTitle(name .. " |cffff40a0" .. ns.L("BY_AUTHOR") .. "|r")
     end
 
     -- Fermer : en mode journal on ferme la fenetre des collections.
@@ -91,10 +93,12 @@ local function Build()
     end
 
     -- Fond sombre general.
-    local bg = frame:CreateTexture(nil, "BACKGROUND")
-    bg:SetPoint("TOPLEFT", 6, -22)
-    bg:SetPoint("BOTTOMRIGHT", -6, 6)
-    bg:SetColorTexture(0.03, 0.03, 0.04, 1)
+    if not ns.Style.IsBlizzard() then
+        local bg = frame:CreateTexture(nil, "BACKGROUND")
+        bg:SetPoint("TOPLEFT", 6, -22)
+        bg:SetPoint("BOTTOMRIGHT", -6, 6)
+        bg:SetColorTexture(0.03, 0.03, 0.04, 1)
+    end
 
     -- "Total Pets 1255".
     local totalBox = CreateFrame("Frame", nil, frame, "InsetFrameTemplate3")
@@ -132,6 +136,13 @@ local function Build()
     right:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -10, 34)
 
     Darken(left); Darken(center); Darken(right)
+    ns.Style.FillColumn(left); ns.Style.FillColumn(right)
+    -- Blizzard : le centre prend la couleur des cartes (pas de separation visible).
+    if ns.Style.IsBlizzard() then
+        local t = center:CreateTexture(nil, "BACKGROUND", nil, 6)
+        t:SetAllPoints(center)
+        t:SetColorTexture(unpack(ns.Style.COL.slot))
+    end
 
     -- Hauts faits : au milieu de la rangee du haut (rempli par AchievementButton).
     local achievBox = CreateFrame("Frame", nil, frame, "InsetFrameTemplate3")
