@@ -41,7 +41,7 @@ ns._locales.enUS = {
     RIGHT_MODE_TEAMS   = "Teams",
     RIGHT_MODE_TARGET  = "Targets",
     RIGHT_MODE_QUEUE   = "Queue",
-    RIGHT_MODE_OPTIONS = "Options",
+    RIGHT_MODE_OPTIONS = "Settings",
 
     OPT_TITLE             = "Display options",
     OPT_SORT_LABEL        = "Display order:",
