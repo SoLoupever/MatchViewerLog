@@ -87,7 +87,7 @@ function Teams.GetPetDisplay(petID)
     if not name then return nil end
     local health, maxHealth, _, _, rarity = C_PetJournal.GetPetStats(petID)
     return {
-        name      = customName or name,
+        name      = ns.Options and ns.Options.DisplayName(customName, name) or customName or name,
         icon      = icon,
         level     = level,
         petType   = petType,
@@ -149,10 +149,24 @@ function Teams.AbilityChoice(list, tier, id)
     if id == list[tier + 3] then return 2 end
 end
 
+-- Liste complete des sorts du slot ; recalculee si absente (restauration
+-- avant chargement du journal) et mise en cache.
+local function SlotAbilAll(i)
+    local c = Teams.current
+    local all = c.abilAll[i]
+    if not all or not all[1] then
+        local _, list = ComputeAbil(c.pets[i])
+        all = list
+        c.abilAll[i] = all
+    end
+    return all
+end
+
 -- Icones/noms des 3 sorts selectionnes d'un slot (+ l'alternative).
 function Teams.GetSlotAbilities(i)
-    local sel, all = Teams.current.abil[i], Teams.current.abilAll[i]
+    local sel = Teams.current.abil[i]
     if not sel then return nil end
+    local all = SlotAbilAll(i)
     local out = {}
     for t = 1, 3 do
         local id = sel[t]
@@ -167,7 +181,7 @@ end
 
 -- Les 2 choix d'un palier (pour le menu de selection).
 function Teams.GetTierChoices(i, tier)
-    local all = Teams.current.abilAll[i]
+    local all = SlotAbilAll(i)
     if not all then return nil end
     local out = {}
     for _, id in ipairs({ all[tier], all[tier + 3] }) do
@@ -344,6 +358,30 @@ function Teams.Delete(id)
     if Teams.current.sourceTeamID == id then Teams.current.sourceTeamID = nil end
     ns.Fire("TEAMS_CHANGED")
     return true
+end
+
+function Teams.CountByCategory(catID)
+    local n = 0
+    for _, t in pairs(ns.DB and ns.DB.teams or {}) do
+        if t.category == catID then n = n + 1 end
+    end
+    return n
+end
+
+-- Supprime toutes les equipes d'une categorie (un seul TEAMS_CHANGED,
+-- sauf silent : l'appelant l'emet).
+function Teams.DeleteByCategory(catID, silent)
+    if not (catID and ns.DB) then return 0 end
+    local n, curID = 0, Teams.current.sourceTeamID
+    for id, t in pairs(ns.DB.teams) do
+        if t.category == catID then
+            ns.DB.teams[id] = nil
+            if id == curID then Teams.current.sourceTeamID = nil end
+            n = n + 1
+        end
+    end
+    if n > 0 and not silent then ns.Fire("TEAMS_CHANGED") end
+    return n
 end
 
 -- Cree une equipe enregistree a partir de donnees explicites (import).

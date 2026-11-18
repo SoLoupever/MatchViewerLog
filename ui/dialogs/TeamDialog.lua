@@ -25,18 +25,9 @@ end
 -- categories reelles ; Favoris est ecartee (virtuelle : flag t.favorite,
 -- pas un champ category). Le parent fixe la largeur via SetPoint.
 function TD.MakeCategoryPicker(parent)
-    local btn = CreateFrame("Button", nil, parent, "BackdropTemplate")
-    btn:SetHeight(22)
-    btn:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-    btn:SetBackdropColor(0.12, 0.12, 0.16, 1); btn:SetBackdropBorderColor(0.4, 0.4, 0.5, 1)
+    local btn = ns.Style.Picker(parent)
     btn.selected = NONE
-
-    local fs = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    fs:SetPoint("LEFT", 6, 0); fs:SetPoint("RIGHT", -18, 0)
-    fs:SetJustifyH("LEFT"); fs:SetWordWrap(false)
-    local arrow = btn:CreateTexture(nil, "OVERLAY")
-    arrow:SetSize(12, 12); arrow:SetPoint("RIGHT", -4, 0)
-    arrow:SetAtlas("housing-floor-arrow-down-default")
+    local fs = btn.fs
 
     function btn:GetCategory() return self.selected end
     function btn:SetCategory(id)

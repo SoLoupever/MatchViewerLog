@@ -628,6 +628,7 @@ ns.On("MVL_FRAME_SHOW", function() if built then Relayout(); RefreshAll(); Updat
 ns.On("TEAM_LOADED", RefreshAll)
 ns.RegisterWowEvent("PLAYER_TARGET_CHANGED", UpdateTarget, true)
 ns.On("TEAMS_CHANGED", UpdateTarget)
+ns.On("MVL_OPTIONS_CHANGED", function() if built and ns.IsFrameShown() then RefreshAll() end end)
 -- Les PV changent apres un combat : on rafraichit les barres de vie.
 ns.RegisterWowEvent("PET_BATTLE_CLOSE", function() if built then RefreshAll() end end, true)
 ns.RegisterWowEvent("PET_JOURNAL_LIST_UPDATE", function() if built then RefreshAll() end end, true)

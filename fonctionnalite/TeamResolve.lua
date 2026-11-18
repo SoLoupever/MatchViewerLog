@@ -45,12 +45,13 @@ local inFullScan = false
 -- (meme circuit que TeamShare.ApplyPayload/ResolveTeamUnowned).
 function Teams.FindOwnedPet(speciesID, breedStr)
     if not speciesID then return nil end
-    local pid = ScanForOwned(speciesID, breedStr)
-    if pid then return pid end
-    -- Rien dans la vue filtree : l'espece est-elle possedee mais masquee ?
-    if inFullScan then return nil end
+    -- Espece non collectee : inutile de balayer le journal.
     local collected = C_PetJournal.GetNumCollectedInfo(speciesID)
     if not collected or collected <= 0 then return nil end
+    local pid = ScanForOwned(speciesID, breedStr)
+    if pid then return pid end
+    -- Rien dans la vue filtree : l'espece est possedee mais masquee.
+    if inFullScan then return nil end
     inFullScan = true
     -- Sauvegarde l'etat des filtres de type puis tout ouvrir.
     local numTypes = C_PetJournal.GetNumPetTypes() or 0
@@ -114,4 +115,4 @@ function Teams.ResolveAllUnowned()
     if curChanged and ns.DB.teams[curId] then Teams.Load(ns.DB.teams[curId]) end
 end
 
-ns.RegisterWowEvent("PET_JOURNAL_LIST_UPDATE", Teams.ResolveAllUnowned)
+ns.RegisterWowEvent("PET_JOURNAL_LIST_UPDATE", ns.Coalesce(Teams.ResolveAllUnowned))

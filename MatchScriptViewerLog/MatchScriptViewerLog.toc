@@ -2,7 +2,7 @@
 ## Title: MatchScriptViewerLog |cffa060ffScripts de combat|r
 ## Notes: Dependance de MatchViewerLog : scripts de combat de mascottes, une action par pression.
 ## Author: SoLoup_ever
-## Version: 0.7
+## Version: 1.2.5.2
 ## IconTexture: Interface\AddOns\MatchScriptViewerLog\Logo_MVL.blp
 ## Dependencies: MatchViewerLog
 ## OptionalDeps: Rematch, tdBattlePetScript

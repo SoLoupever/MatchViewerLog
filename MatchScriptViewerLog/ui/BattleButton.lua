@@ -88,16 +88,12 @@ end
 
 local function Build()
     if btn then return end
-    btn = CreateFrame("Button", BTN_NAME, UIParent, "BackdropTemplate")
-    btn:SetSize(150, 22)   -- hauteur ajustee sur "Passer" dans Anchor
+    -- Nom global requis par SetOverrideBindingClick.
+    btn = ns.MVL.Button(UIParent, "", 150, 22, {
+        name = BTN_NAME, bg = { 0.08, 0.06, 0.12, 0.95 }, border = { 0.63, 0.38, 1, 1 },
+    })
     btn:SetFrameStrata("FULLSCREEN_DIALOG")
     btn:SetToplevel(true)
-    btn:SetBackdrop({
-        bgFile   = "Interface\\Buttons\\WHITE8x8",
-        edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1,
-    })
-    btn:SetBackdropColor(0.08, 0.06, 0.12, 0.95)
-    btn:SetBackdropBorderColor(0.63, 0.38, 1, 1)
 
     -- Disposition sur une seule rangee (tient dans la hauteur de "Passer") :
     -- icone | libelle | etape (i/n) | touche.

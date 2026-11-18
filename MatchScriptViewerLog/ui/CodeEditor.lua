@@ -49,15 +49,8 @@ function Editor.Create(parent)
     f.msg:SetJustifyH("LEFT")
 
     -- Bouton Enregistrer.
-    local save = CreateFrame("Button", nil, f, "BackdropTemplate")
-    save:SetHeight(22)
+    local save = ns.Widgets.SmallBtn(f, 100, ns.L("CODE_SAVE"), ns.Widgets.SPEC.purple)
     save:SetPoint("BOTTOMLEFT", 2, 4); save:SetPoint("BOTTOMRIGHT", f, "BOTTOM", -2, 4)
-    save:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-    save:SetBackdropColor(0.20, 0.14, 0.28, 1); save:SetBackdropBorderColor(0.63, 0.38, 1, 1)
-    local st = save:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    st:SetPoint("CENTER"); st:SetText(ns.L("CODE_SAVE"))
-    save:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(1, 0.82, 0, 1) end)
-    save:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(0.63, 0.38, 1, 1) end)
     save:SetScript("OnClick", function()
         local id = ns.CurrentEditTeam()
         if not id then return end
@@ -70,15 +63,8 @@ function Editor.Create(parent)
     end)
 
     -- Bouton Supprimer (confirmation).
-    local del = CreateFrame("Button", nil, f, "BackdropTemplate")
-    del:SetHeight(22)
+    local del = ns.Widgets.SmallBtn(f, 100, ns.L("CODE_DELETE"), ns.Widgets.SPEC.red)
     del:SetPoint("BOTTOMLEFT", f, "BOTTOM", 2, 4); del:SetPoint("BOTTOMRIGHT", -2, 4)
-    del:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-    del:SetBackdropColor(0.28, 0.08, 0.08, 1); del:SetBackdropBorderColor(0.8, 0.3, 0.3, 1)
-    local dt = del:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    dt:SetPoint("CENTER"); dt:SetText(ns.L("CODE_DELETE"))
-    del:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(1, 0.82, 0, 1) end)
-    del:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(0.8, 0.3, 0.3, 1) end)
     del:SetScript("OnClick", function()
         local id = ns.CurrentEditTeam()
         if not (id and ns.Scripts.Has(id)) then return end

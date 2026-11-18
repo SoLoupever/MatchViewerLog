@@ -2,7 +2,7 @@
 ## Title: MatchViewerLog |cffff40a0By Soloup_ever|r
 ## Notes: Gestionnaire de combats de mascottes.
 ## Author: SoLoup_ever
-## Version: 0.7
+## Version: 1.2.5.2
 ## IconTexture: Interface\AddOns\MatchViewerLog\Logo_MVL.blp
 ## SavedVariables: MatchViewerLogDB
 ## OptionalDeps: Rematch, BattlePetBreedID, Blizzard_Collections
@@ -66,6 +66,7 @@ ui\BottomBar.lua
 ui\PetMenu.lua
 ui\petinfo\PetCard.lua
 ui\dialogs\CategoryDialog.lua
+ui\dialogs\DeleteCategoryDialog.lua
 ui\dialogs\TeamDialog.lua
 ui\dialogs\TeamShareDialog.lua
 ui\dialogs\DiscordDialog.lua

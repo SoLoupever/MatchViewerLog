@@ -27,7 +27,7 @@ end
 local function ShowKey()
     if not keyBtn then return end
     keyBtn.fs:SetText(listening and ns.L("OPTKEY_PRESS") or CurrentKey())
-    keyBtn:SetBackdropBorderColor(listening and 1 or 0.4, listening and 0.82 or 0.3, listening and 0 or 0.55, 1)
+    keyBtn:SetActive(listening)
 end
 
 local function StopListening()
@@ -53,17 +53,16 @@ local function Build(parent)
     local lbl = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     lbl:SetPoint("TOPLEFT", 2, 0); lbl:SetText(ns.L("OPTKEY_LABEL"))
 
-    keyBtn = CreateFrame("Button", nil, frame, "BackdropTemplate")
-    keyBtn:SetHeight(22)
+    keyBtn = ns.MVL.Button(frame, "", 100, 22, {
+        bg = { 0.12, 0.12, 0.16, 1 }, border = { 0.40, 0.30, 0.55, 1 },
+        activeBg = { 0.12, 0.12, 0.16, 1 }, activeBorder = { 1, 0.82, 0, 1 },
+    })
     keyBtn:SetPoint("TOPLEFT", lbl, "BOTTOMLEFT", 0, -4)
     keyBtn:SetPoint("RIGHT", frame, "RIGHT", -2, 0)
-    keyBtn:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-    keyBtn:SetBackdropColor(0.12, 0.12, 0.16, 1)
     -- Etat de repos : aucune capture clavier (Echap doit fermer la fenetre).
     keyBtn:EnableKeyboard(false)
     keyBtn:SetPropagateKeyboardInput(true)
-    keyBtn.fs = keyBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    keyBtn.fs:SetPoint("CENTER")
+    keyBtn.fs = keyBtn.text
 
     keyBtn:SetScript("OnClick", function(self)
         if listening then StopListening(); return end

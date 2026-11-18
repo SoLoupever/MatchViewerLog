@@ -120,17 +120,21 @@ function Cats.Update(id, name, color)
     ns.Fire("CATS_CHANGED")
 end
 
--- Supprime une categorie. Ses equipes ne sont PAS supprimees : elles
--- repassent en "aucune categorie" (group:none).
-function Cats.Delete(id)
+-- Supprime une categorie. Ses equipes repassent en "aucune categorie"
+-- (group:none), sauf withTeams : elles sont supprimees avec.
+function Cats.Delete(id, withTeams)
     local list = ns.DB.categories.list
     if not list then return end
     local idx
     for i, c in ipairs(list) do if c.id == id then idx = i break end end
     if not idx then return end
     table.remove(list, idx)
-    for _, t in pairs(ns.DB.teams or {}) do
-        if t.category == id then t.category = "group:none" end
+    if withTeams and ns.Teams then
+        ns.Teams.DeleteByCategory(id, true)
+    else
+        for _, t in pairs(ns.DB.teams or {}) do
+            if t.category == id then t.category = "group:none" end
+        end
     end
     ns.Fire("CATS_CHANGED"); ns.Fire("TEAMS_CHANGED")
 end

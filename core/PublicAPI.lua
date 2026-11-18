@@ -123,6 +123,12 @@ local API = {
     -- reutilise le meme skin fin bleu clair que les panneaux natifs.
     SkinScrollBar = function(scroll) if ns.ScrollSkin then ns.ScrollSkin.Apply(scroll) end end,
 
+    -- Bouton / selecteur au theme actif (MVL ou Blizzard) : le compagnon
+    -- reutilise les fabriques de ns.Style, sans bouton maison.
+    -- spec : bg, border, text, hover, activeBg, activeBorder, name, small.
+    Button = function(parent, label, w, h, spec) return ns.Style.Button(parent, label, w, h, spec) end,
+    Picker = function(parent) return ns.Style.Picker(parent) end,
+
     -- Traduction MVL (repli ; le compagnon a ses propres locales).
     L = function(key) return ns.L(key) end,
 

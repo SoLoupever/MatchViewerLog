@@ -13,21 +13,13 @@ ns.RegisterModule("RightPanelScript", {})
 local PAD = 8
 local container, codeEditor, headerBtn, hintFS, recordBtn
 
--- Couleur du bouton Enregistrer : rouge quand l'enregistrement est arme.
+-- Bouton Enregistrer : etat actif (rouge en theme MVL) quand l'enregistrement est arme.
+local RECORD_SPEC = {
+    bg = { 0.14, 0.12, 0.18, 1 }, border = { 0.40, 0.30, 0.55, 1 }, small = true,
+    activeBg = { 0.45, 0.07, 0.07, 1 }, activeBorder = { 1, 0.25, 0.25, 1 },
+}
 local function PaintRecordBtn(b)
-    local on = ns.Recorder.IsArmed()
-    if on then
-        b:SetBackdropColor(0.45, 0.07, 0.07, 1)
-    else
-        b:SetBackdropColor(0.14, 0.12, 0.18, 1)
-    end
-    if b.hovered then
-        b:SetBackdropBorderColor(1, 0.82, 0, 1)
-    elseif on then
-        b:SetBackdropBorderColor(1, 0.25, 0.25, 1)
-    else
-        b:SetBackdropBorderColor(0.4, 0.3, 0.55, 1)
-    end
+    b:SetActive(ns.Recorder.IsArmed())
 end
 
 -- teamID actuellement edite = equipe chargee dans MVL.
@@ -42,7 +34,7 @@ local function Refresh()
     if not (container and container:IsShown()) then return end
 
     local ids = ns.Scripts.AllScriptedIDs()
-    headerBtn.text:SetText(ns.L("SCRIPT_TEAMS_MENU"):format(#ids) .. " |cffffffffv|r")
+    headerBtn.fs:SetText(ns.L("SCRIPT_TEAMS_MENU"):format(#ids))
 
     local id = ns.CurrentEditTeam()
     if not id then
@@ -63,13 +55,8 @@ local function BuildContainer(panel)
     container:SetPoint("BOTTOMRIGHT", -PAD, 34)
 
     -- En-tete : menu des equipes scriptees.
-    headerBtn = CreateFrame("Button", nil, container, "BackdropTemplate")
-    headerBtn:SetHeight(22)
+    headerBtn = ns.MVL.Picker(container)
     headerBtn:SetPoint("TOPLEFT", 0, 0); headerBtn:SetPoint("TOPRIGHT", 0, 0)
-    headerBtn:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-    headerBtn:SetBackdropColor(0.16, 0.10, 0.22, 1); headerBtn:SetBackdropBorderColor(0.55, 0.35, 0.85, 1)
-    headerBtn.text = headerBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    headerBtn.text:SetPoint("CENTER")
     headerBtn:SetScript("OnClick", function(self)
         if not (MenuUtil and MenuUtil.CreateContextMenu) then return end
         MenuUtil.CreateContextMenu(self, function(_, root)
@@ -86,40 +73,31 @@ local function BuildContainer(panel)
     -- Rangee A : Enregistrer (interrupteur d'enregistrement de combat) +
     -- Code (repere visuel, forme unique desormais) + Deployer (occupe tout
     -- l'espace restant a droite jusqu'au bord).
-    local saveBtn = SmallBtn(container, 70, ns.L("SCRIPT_SAVE_BTN"))
+    local saveBtn = SmallBtn(container, 70, ns.L("SCRIPT_SAVE_BTN"), RECORD_SPEC)
     saveBtn:SetPoint("TOPLEFT", headerBtn, "BOTTOMLEFT", 0, -4)
     PaintRecordBtn(saveBtn)
     saveBtn:SetScript("OnEnter", function(self)
-        self.hovered = true; PaintRecordBtn(self)
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
         GameTooltip:AddLine(ns.L("REC_TIP_TITLE"), 0.8, 0.5, 1)
         GameTooltip:AddLine(ns.L(ns.Recorder.IsArmed() and "REC_TIP_ON" or "REC_TIP_OFF"), 1, 1, 1, true)
         GameTooltip:Show()
     end)
-    saveBtn:SetScript("OnLeave", function(self)
-        self.hovered = false; PaintRecordBtn(self)
-        GameTooltip_Hide()
-    end)
+    saveBtn:SetScript("OnLeave", GameTooltip_Hide)
     saveBtn:SetScript("OnClick", function() ns.Recorder.Toggle() end)
     recordBtn = saveBtn
 
     local codeBtn = SmallBtn(container, 70, ns.L("SCRIPT_KIND_CODE"))
     codeBtn:SetPoint("LEFT", saveBtn, "RIGHT", 4, 0)
 
-    local deployBtn = SmallBtn(container, 100, ns.L("DEPLOY_BTN"))
+    local deployBtn = SmallBtn(container, 100, ns.L("DEPLOY_BTN"), ns.Widgets.SPEC.green)
     deployBtn:SetPoint("TOPLEFT", codeBtn, "TOPRIGHT", 4, 0)
     deployBtn:SetPoint("TOPRIGHT", headerBtn, "BOTTOMRIGHT", 0, -4)
-    deployBtn:SetBackdropColor(0.10, 0.20, 0.14, 1); deployBtn:SetBackdropBorderColor(0.35, 0.7, 0.45, 1)
-    deployBtn:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(1, 0.82, 0, 1) end)
-    deployBtn:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(0.35, 0.7, 0.45, 1) end)
     deployBtn:SetScript("OnClick", function() if ns.Deploy then ns.Deploy.Current(true) end end)
 
     -- Rangee B : import pleine largeur.
     local importBtn = SmallBtn(container, 120, ns.L("SCRIPT_IMPORT_TD"))
     importBtn:SetPoint("TOPLEFT", saveBtn, "BOTTOMLEFT", 0, -4)
     importBtn:SetPoint("TOPRIGHT", deployBtn, "BOTTOMRIGHT", 0, -4)
-    importBtn:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(1, 0.82, 0, 1) end)
-    importBtn:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(0.4, 0.3, 0.55, 1) end)
     importBtn:SetScript("OnClick", function() if MatchViewerLog_Converter then MatchViewerLog_Converter.ImportTd(true) end end)
 
     hintFS = container:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")

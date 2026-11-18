@@ -31,6 +31,17 @@ ns.On("MVL_FRAME_SHOW", function() shown = true end)
 ns.On("MVL_FRAME_HIDE", function() shown = false end)
 function ns.IsFrameShown() return shown end
 
+-- Regroupe une rafale d'appels en un seul passage differe (fn sans argument).
+function ns.Coalesce(fn, delay)
+    local pending = false
+    local function run() pending = false; fn() end
+    return function()
+        if pending then return end
+        pending = true
+        C_Timer.After(delay or 0.1, run)
+    end
+end
+
 -- Facade events WoW. visibleOnly : ignore l'event tant que la fenetre est fermee.
 local wowFrame    = CreateFrame("Frame")
 local wowHandlers = {}

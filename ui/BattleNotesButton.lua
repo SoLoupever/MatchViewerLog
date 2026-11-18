@@ -60,16 +60,15 @@ end
 
 local function Build()
     if btn then return end
-    btn = CreateFrame("Button", BTN_NAME, UIParent, "BackdropTemplate")
-    btn:SetSize(22, 22)
+    btn = ns.Style.Button(UIParent, "", 22, 22, {
+        name = BTN_NAME, bg = { 0.08, 0.06, 0.12, 0.95 }, border = { 0.63, 0.38, 1, 1 },
+    })
     btn:SetFrameStrata("FULLSCREEN_DIALOG")
     btn:SetToplevel(true)
-    btn:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-    btn:SetBackdropColor(0.08, 0.06, 0.12, 0.95)
-    btn:SetBackdropBorderColor(0.63, 0.38, 1, 1)
 
+    local inset = ns.Style.IsBlizzard() and 5 or 2
     icon = btn:CreateTexture(nil, "ARTWORK")
-    icon:SetPoint("TOPLEFT", 2, -2); icon:SetPoint("BOTTOMRIGHT", -2, 2)
+    icon:SetPoint("TOPLEFT", inset, -inset); icon:SetPoint("BOTTOMRIGHT", -inset, inset)
     icon:SetTexCoord(0.08, 0.92, 0.08, 0.92); icon:SetTexture(ICON)
     local hl = btn:CreateTexture(nil, "HIGHLIGHT"); hl:SetAllPoints(); hl:SetColorTexture(1, 1, 1, 0.2)
 

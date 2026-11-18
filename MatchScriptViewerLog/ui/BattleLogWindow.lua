@@ -59,9 +59,8 @@ local function Build()
     ask.text:SetPoint("TOPLEFT"); ask.text:SetPoint("TOPRIGHT")
     ask.text:SetJustifyH("LEFT"); ask.text:SetWordWrap(true)
 
-    ask.convert = ns.Widgets.SmallBtn(ask, 110, "")
+    ask.convert = ns.Widgets.SmallBtn(ask, 110, "", ns.Widgets.SPEC.green)
     ask.convert:SetPoint("BOTTOMLEFT", 0, 0)
-    ask.convert:SetBackdropColor(0.10, 0.20, 0.14, 1); ask.convert:SetBackdropBorderColor(0.35, 0.7, 0.45, 1)
 
     ask.dismiss = ns.Widgets.SmallBtn(ask, 90, ns.L("REC_DISMISS"))
     ask.dismiss:SetPoint("LEFT", ask.convert, "RIGHT", 6, 0)

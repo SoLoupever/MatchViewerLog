@@ -25,10 +25,15 @@ end
 -- Memorise species/breed d'un petID encore possede (repli si mise en cage).
 local function RememberPet(petID)
     if type(petID) ~= "string" or not petID:find("^BattlePet") then return end
+    local meta = MetaStore()
+    local e = meta[petID]
+    -- Espece et breed d'un petID sont fixes : meta complete = rien a refaire.
+    if e and e.species and (e.breed or not ns.Breed.IsAvailable()) then return end
     local speciesID = C_PetJournal.GetPetInfoByPetID(petID)
     if not speciesID then return end
-    MetaStore()[petID] = { species = speciesID,
-                           breed = ns.Breed and ns.Breed.GetForPetID(petID) or nil }
+    local breed = ns.Breed.GetForPetID(petID)
+    if e then e.species, e.breed = speciesID, breed
+    else meta[petID] = { species = speciesID, breed = breed } end
 end
 
 -- Bascule en "non possede" les slots dont le petID ne resout plus, via la meta.
@@ -54,8 +59,9 @@ local function ConvertCagedSlots(pets, unowned, abilBySlot)
 end
 
 -- Purge les meta plus referencees par aucune equipe (pet resolu ou converti).
+local keepSet = {}
 local function PruneMeta()
-    local meta, keep = MetaStore(), {}
+    local meta, keep = MetaStore(), wipe(keepSet)
     local c = Teams.current
     for i = 1, 3 do if type(c.pets[i]) == "string" then keep[c.pets[i]] = true end end
     for _, t in pairs(ns.DB.teams) do
@@ -93,4 +99,4 @@ function Teams.ReconcileCaged()
     if any then ns.Fire("TEAMS_CHANGED") end
     if curChanged then ns.Fire("TEAM_LOADED") end
 end
-ns.RegisterWowEvent("PET_JOURNAL_LIST_UPDATE", Teams.ReconcileCaged)
+ns.RegisterWowEvent("PET_JOURNAL_LIST_UPDATE", ns.Coalesce(Teams.ReconcileCaged))

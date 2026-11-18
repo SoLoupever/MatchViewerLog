@@ -9,14 +9,6 @@ local addonName, ns = ...
 
 ns.RegisterModule("RightPanel", {})
 
--- Confirmation de suppression d'une categorie.
-StaticPopupDialogs["MATCHVIEWERLOG_DELCAT"] = {
-    text = ns.L("DELCAT_CONFIRM"),
-    button1 = YES, button2 = NO,
-    OnAccept = function(self, data) if data and ns.Cats then ns.Cats.Delete(data) end end,
-    timeout = 0, whileDead = true, hideOnEscape = true,
-}
-
 -- Confirmation de suppression d'une equipe.
 StaticPopupDialogs["MATCHVIEWERLOG_DELTEAM"] = {
     text = ns.L("DELTEAM_CONFIRM"),
@@ -263,7 +255,7 @@ local function AcquireRow(parent, i)
                 if ns.TeamShare then ns.TeamShare.OpenExportCategory(self.catID) end
             end)
             root:CreateButton(ns.L("MENU_DELETE_CAT"), function()
-                StaticPopup_Show("MATCHVIEWERLOG_DELCAT", nil, nil, self.catID)
+                if ns.DeleteCategoryDialog then ns.DeleteCategoryDialog.Open(self.catID) end
             end)
         end)
     end

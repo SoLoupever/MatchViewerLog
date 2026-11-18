@@ -135,19 +135,11 @@ local function EnsureDlg()
     dlg.hintFS:SetPoint("BOTTOMLEFT", 16, 20); dlg.hintFS:SetPoint("RIGHT", dlg, "RIGHT", -120, 0)
     dlg.hintFS:SetJustifyH("LEFT")
 
-    -- Bouton d'action (Importer / Tout selectionner) : meme style violet que
-    -- les boutons du bas (Invoquer/Enregistrer), pas le bouton Blizzard rouge.
-    dlg.action = CreateFrame("Button", nil, dlg, "BackdropTemplate")
-    dlg.action:SetSize(100, 22); dlg.action:SetPoint("BOTTOMRIGHT", -14, 14)
-    dlg.action:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-    dlg.action:SetBackdropColor(0.16, 0.10, 0.22, 1)
-    dlg.action:SetBackdropBorderColor(0.55, 0.35, 0.85, 1)
-    local ahl = dlg.action:CreateTexture(nil, "HIGHLIGHT"); ahl:SetAllPoints(); ahl:SetColorTexture(1, 1, 1, 0.08)
-    dlg.action.text = dlg.action:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    dlg.action.text:SetPoint("CENTER")
-    dlg.action.SetText = function(self, t) self.text:SetText(t) end
-    dlg.action:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(1, 0.82, 0, 1) end)
-    dlg.action:SetScript("OnLeave", function(self) self:SetBackdropBorderColor(0.55, 0.35, 0.85, 1) end)
+    -- Bouton d'action (Importer / Tout selectionner), au theme actif.
+    dlg.action = ns.Style.Button(dlg, "", 100, 22, {
+        bg = { 0.16, 0.10, 0.22, 1 }, border = { 0.55, 0.35, 0.85, 1 },
+    })
+    dlg.action:SetPoint("BOTTOMRIGHT", -14, 14)
 
     return dlg
 end

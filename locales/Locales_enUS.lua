@@ -114,6 +114,8 @@ ns._locales.enUS = {
     TEAMDLG_CATEGORY     = "Category:",
     TEAMDLG_NO_CATEGORY  = "No category",
     DELCAT_CONFIRM       = "Delete this category? Its teams will move back to \"No category\".",
+    DELCAT_CONFIRM_ALL   = "Delete this category AND all its teams? This cannot be undone.",
+    DELCAT_WITH_TEAMS    = "Also delete its %d teams",
     DELTEAM_CONFIRM      = "Delete this team?",
 
     EXPORT_TITLE         = "Export team",

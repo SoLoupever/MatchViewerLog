@@ -112,6 +112,8 @@ ns._locales.frFR = {
     TEAMDLG_CATEGORY     = "Categorie :",
     TEAMDLG_NO_CATEGORY  = "Aucune categorie",
     DELCAT_CONFIRM       = "Supprimer cette categorie ? Ses equipes repasseront en \"Aucune categorie\".",
+    DELCAT_CONFIRM_ALL   = "Supprimer cette categorie ET toutes ses equipes ? Action definitive.",
+    DELCAT_WITH_TEAMS    = "Supprimer aussi ses %d equipes",
     DELTEAM_CONFIRM      = "Supprimer cette equipe ?",
 
     EXPORT_TITLE         = "Exporter l'equipe",

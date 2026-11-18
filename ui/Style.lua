@@ -104,15 +104,15 @@ end
 
 -- Cree un frame depuis un template Blizzard ; nil si le template est absent
 -- (le bouton retombe alors sur le look plat, sans erreur).
-local function TryTemplate(kind, parent, template)
-    local ok, f = pcall(CreateFrame, kind, nil, parent, template)
+local function TryTemplate(kind, parent, template, name)
+    local ok, f = pcall(CreateFrame, kind, name, parent, template)
     return ok and f or nil
 end
 Style.TryTemplate = TryTemplate
 
 -- Bouton Blizzard (UIPanelButtonTemplate). Memes methodes que le bouton plat.
 local function BlizzButton(parent, label, w, h, spec)
-    local b = TryTemplate("Button", parent, "UIPanelButtonTemplate")
+    local b = TryTemplate("Button", parent, "UIPanelButtonTemplate", spec and spec.name)
     if not b then return nil end
     b:SetSize(w or 80, math.max(h or 22, 22))
     -- spec.small : police reduite pour les boutons etroits (le libelle ne deborde pas).
@@ -132,7 +132,7 @@ local function BlizzButton(parent, label, w, h, spec)
 end
 
 -- Bouton plat. spec : bg, border, text, hover, activeBg, activeBorder,
--- activeText, font. b:SetActive(on) bascule l'etat "actif".
+-- activeText, font, name (nom global), small. b:SetActive(on) bascule l'etat "actif".
 -- Theme Blizzard : bouton natif, spec ignore.
 function Style.Button(parent, label, w, h, spec)
     if IsBlizz() then
@@ -140,7 +140,7 @@ function Style.Button(parent, label, w, h, spec)
         if nb then return nb end
     end
     spec = spec or {}
-    local b = CreateFrame("Button", nil, parent, "BackdropTemplate")
+    local b = CreateFrame("Button", spec.name, parent, "BackdropTemplate")
     b:SetSize(w or 80, h or 24)
     b.spec = {
         bg = spec.bg or COL.card, border = spec.border or COL.edge,
