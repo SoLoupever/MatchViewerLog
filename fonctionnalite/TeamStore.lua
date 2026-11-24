@@ -100,31 +100,18 @@ end
 
 -- Meilleure mascotte possedee pour un slot "aleatoire par type" : plus haut
 -- niveau d'abord, puis plus haute rarete a niveau egal (meme logique que le
--- choix aleatoire de Rematch, cf. randomPets.lua GetPetIDWeight). Source
--- unique : utilisee pour l'apercu (CenterPanel) ET le vrai deploiement
--- (MatchScriptViewerLog via l'API publique), pour que les deux soient
--- toujours coherents entre eux.
---
--- Cache par type le temps que le roster ne change pas (meme principe que
--- PetCard.lua collectedCache) : evite de rescanner tout le journal a chaque
--- rafraichissement du panneau central. Uniquement pour l'apercu (excluded
--- nil) ; un deploiement reel (excluded fourni) n'est jamais mis en cache.
-local randomPickCache = {}
-ns.RegisterWowEvent("PET_JOURNAL_LIST_UPDATE", function() wipe(randomPickCache) end)
-
--- typeIndex nil/0 = tout type. excluded = table optionnelle {petID=true}.
-function Teams.PickRandomOfType(typeIndex, excluded)
-    if typeIndex == 0 then typeIndex = nil end
-    if not excluded then
-        local cacheKey = typeIndex or 0
-        local cached = randomPickCache[cacheKey]
-        if cached ~= nil then return cached or nil end
-    end
+-- choix aleatoire de Rematch, cf. randomPets.lua GetPetIDWeight), tirage au
+-- sort parmi les ex aequo. Lit le journal sans les filtres de l'UI (type,
+-- recherche) et ignore les mascottes non combattantes / revoquees.
+-- Appel direct : utiliser Teams.ResolveSlots pour un resultat stable (apercu
+-- et deploiement partagent le meme tirage).
+local function ScanOfType(typeIndex, excluded)
     local pool, bestLevel, bestRarity = {}, 0, 0
     local num = C_PetJournal.GetNumPets() or 0
     for i = 1, num do
-        local pid, _, isOwned, _, level, _, _, _, _, petType = C_PetJournal.GetPetInfoByIndex(i)
-        if isOwned and pid and (not excluded or not excluded[pid]) and (not typeIndex or petType == typeIndex) then
+        local pid, _, isOwned, _, level, _, isRevoked, _, _, petType, _, _, _, _, canBattle = C_PetJournal.GetPetInfoByIndex(i)
+        if isOwned and pid and canBattle and not isRevoked
+            and (not excluded or not excluded[pid]) and (not typeIndex or petType == typeIndex) then
             level = level or 0
             local _, _, _, _, rarity = C_PetJournal.GetPetStats(pid)
             rarity = rarity or 0
@@ -137,9 +124,13 @@ function Teams.PickRandomOfType(typeIndex, excluded)
             end
         end
     end
-    local result = (#pool > 0) and pool[math.random(#pool)] or nil
-    if not excluded then randomPickCache[typeIndex or 0] = result or false end
-    return result
+    return (#pool > 0) and pool[math.random(#pool)] or nil
+end
+
+-- typeIndex nil/0 = tout type. excluded = table optionnelle {petID=true}.
+function Teams.PickRandomOfType(typeIndex, excluded)
+    if typeIndex == 0 then typeIndex = nil end
+    return Teams.WithUnfilteredJournal(ScanOfType, typeIndex, excluded)
 end
 
 -- Rang du sort dans son palier : 1 = list[t], 2 = list[t+3] (nil si inconnu).

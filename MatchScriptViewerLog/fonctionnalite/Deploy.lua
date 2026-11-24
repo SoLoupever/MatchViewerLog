@@ -84,7 +84,12 @@ function Deploy.Team(teamID)
         placed = ns.MVL.ResolveSlots()
         for slot = 1, 3 do
             local petID = placed[slot]
-            if petID then pcall(C_PetJournal.SetPetLoadOutInfo, slot, petID) end
+            if petID then
+                local ok, err = pcall(C_PetJournal.SetPetLoadOutInfo, slot, petID)
+                ns.Debug("deploy", slot, petID, ok, err, "->", (C_PetJournal.GetPetLoadOutInfo(slot)))
+            else
+                ns.Debug("deploy", slot, "aucun pet (random=" .. tostring(random and random[slot]) .. ")")
+            end
         end
     else
     for slot = 1, 3 do

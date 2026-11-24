@@ -35,7 +35,14 @@ function Teams.ResolveSlots(src)
         local p = {}
         for i = 1, 3 do p[i] = tostring(pets[i]) .. "|" .. tostring(random[i]) .. "|" .. tostring(special[i]) end
         sig = table.concat(p, ";")
-        if resolved and resolved.sig == sig then return resolved.out end
+        if resolved and resolved.sig == sig then
+            local valid = true
+            for i = 1, 3 do
+                local pid = resolved.out[i]
+                if pid and not C_PetJournal.GetPetInfoByPetID(pid) then valid = false; break end
+            end
+            if valid then return resolved.out end
+        end
     end
     local out, used = {}, {}
     for i = 1, 3 do

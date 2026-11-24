@@ -175,24 +175,17 @@ local function TypeName(t)
     return _G["BATTLE_PET_NAME_" .. t] or ("#" .. t)
 end
 
--- Slot marque "aleatoire" : par type (Teams.PickRandomOfType) ou "XP" (Teams.
--- PickLevelingPet, pioche dans la file d'XP). Pas de pet precis avant
--- deploiement, mais l'apercu (lecture seule) utilise la MEME fonction de
--- selection que le vrai deploiement cote MatchScriptViewerLog, pour les deux
--- variantes : le nom reste "Aleatoire"/"XP" (le pet reel n'est fixe qu'au
--- deploiement) mais sa couleur, son niveau et son icone montrent ce qui
--- serait pris maintenant.
+-- Slot marque "aleatoire" : par type ou "XP" (file d'XP). L'apercu lit
+-- Teams.ResolveSlots (memoise, sans doublon avec les autres slots), la meme
+-- resolution que le deploiement (MVL et MatchScriptViewerLog) : la mascotte
+-- affichee est celle qui sera sortie.
 local function ShowRandom(slot, i, t)
     slot.hpBar:Hide(); slot.hpText:SetText("")
     for a = 1, 3 do slot.abilities[a].abilityID = nil; slot.abilities[a]:Hide() end
 
     if t == ns.RANDOM_XP then
         slot.typeIcon:Hide()
-        -- Meme principe que le random par type juste en dessous : montre la
-        -- mascotte qui serait reellement piochee dans la file d'XP au
-        -- deploiement (Teams.PickLevelingPet, meme fonction que le vrai
-        -- deploiement cote MatchScriptViewerLog), au lieu d'un libelle nu.
-        local previewID = ns.Teams and ns.Teams.PickLevelingPet({})
+        local previewID = ns.Teams and ns.Teams.ResolveSlots()[i]
         local info = previewID and ns.Teams.GetPetDisplay(previewID)
         if info then
             slot.icon:SetTexture(info.icon); slot.icon:Show()
@@ -221,7 +214,7 @@ local function ShowRandom(slot, i, t)
     end
 
     -- Candidat actuel : la mascotte qui serait reellement sortie maintenant.
-    local previewID = ns.Teams and ns.Teams.PickRandomOfType(typeIndex)
+    local previewID = ns.Teams and ns.Teams.ResolveSlots()[i]
     local info = previewID and ns.Teams.GetPetDisplay(previewID)
 
     if info then

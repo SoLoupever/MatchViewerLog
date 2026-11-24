@@ -36,35 +36,41 @@ end
 -- declenche PET_JOURNAL_LIST_UPDATE, qui pourrait relancer une resolution.
 local inFullScan = false
 
+-- Execute fn(...) avec les filtres du journal (types + recherche) neutralises,
+-- puis les restaure. Sans filtre actif, appel direct. Les toucher declenche
+-- PET_JOURNAL_LIST_UPDATE, d'ou la garde contre les balayages imbriques.
+function Teams.WithUnfilteredJournal(fn, ...)
+    if inFullScan then return fn(...) end
+    local numTypes = C_PetJournal.GetNumPetTypes() or 0
+    local saved, filtered = {}, ns.petSearchText and ns.petSearchText ~= ""
+    for t = 1, numTypes do
+        saved[t] = C_PetJournal.IsPetTypeChecked(t)
+        if not saved[t] then filtered = true end
+    end
+    if not filtered then return fn(...) end
+    inFullScan = true
+    C_PetJournal.SetAllPetTypesChecked(true)
+    C_PetJournal.SetSearchFilter("")
+    local ok, res = pcall(fn, ...)
+    C_PetJournal.SetSearchFilter(ns.petSearchText or "")
+    for t = 1, numTypes do C_PetJournal.SetPetTypeFilter(t, saved[t]) end
+    inFullScan = false
+    if not ok then error(res, 0) end
+    return res
+end
+
 -- Cherche un petID possede de l'espece donnee (et du breed exact si demande
 -- et detectable, voir ScanForOwned). D'abord dans la liste filtree courante ;
--- si introuvable alors que l'espece est bien collectee, on neutralise
--- temporairement les filtres (type + recherche) pour la retrouver, puis on les
--- restaure. nil si l'espece n'est pas collectee, OU si elle l'est mais pas
+-- si introuvable alors que l'espece est bien collectee, on retente sans les
+-- filtres. nil si l'espece n'est pas collectee, OU si elle l'est mais pas
 -- dans le breed exact demande -> l'appelant traite ca comme "non possede"
 -- (meme circuit que TeamShare.ApplyPayload/ResolveTeamUnowned).
 function Teams.FindOwnedPet(speciesID, breedStr)
     if not speciesID then return nil end
-    -- Espece non collectee : inutile de balayer le journal.
     local collected = C_PetJournal.GetNumCollectedInfo(speciesID)
     if not collected or collected <= 0 then return nil end
-    local pid = ScanForOwned(speciesID, breedStr)
-    if pid then return pid end
-    -- Rien dans la vue filtree : l'espece est possedee mais masquee.
-    if inFullScan then return nil end
-    inFullScan = true
-    -- Sauvegarde l'etat des filtres de type puis tout ouvrir.
-    local numTypes = C_PetJournal.GetNumPetTypes() or 0
-    local saved = {}
-    for t = 1, numTypes do saved[t] = C_PetJournal.IsPetTypeChecked(t) end
-    C_PetJournal.SetAllPetTypesChecked(true)
-    C_PetJournal.SetSearchFilter("")
-    pid = ScanForOwned(speciesID, breedStr)
-    -- Restaure la recherche et chaque filtre de type.
-    C_PetJournal.SetSearchFilter(ns.petSearchText or "")
-    for t = 1, numTypes do C_PetJournal.SetPetTypeFilter(t, saved[t]) end
-    inFullScan = false
-    return pid
+    return ScanForOwned(speciesID, breedStr)
+        or Teams.WithUnfilteredJournal(ScanForOwned, speciesID, breedStr)
 end
 
 -- Resout un emplacement "non possede" en vraie mascotte quand le joueur l'a
